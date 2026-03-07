@@ -54,7 +54,6 @@ Create a `.env` file in the root directory with the following credentials from y
 ```env
 CLIENT_ID=your_google_client_id
 CLIENT_SECRET=your_google_client_secret
-PORT=3000
 ```
 
 ### 4. Start the Application
@@ -67,7 +66,7 @@ You need to run both the frontend and backend servers.
 bun run server
 ```
 
-_Note: On the first run, visit `http://localhost:3000/auth` to authenticate with Google. This will create a `tokens.json` file for persistent access._
+_Note: On the first run, visit `http://localhost:{yourPORT)/auth` to authenticate with Google. This will create a `tokens.json` file for persistent access._
 
 **Frontend Development Server:**
 

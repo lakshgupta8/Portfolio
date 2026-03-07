@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: portfolio
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npx tsx src/server/server.ts
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: ALLOWED_ORIGIN
+        sync: false
+      - key: CLIENT_ID
+        sync: false
+      - key: CLIENT_SECRET
+        sync: false
+      - key: REDIRECT_URI
+        sync: false
+      - key: GMAIL_TOKENS
+        sync: false

@@ -14,7 +14,7 @@ export default function Contact() {
         setStatus({ type: null, message: '' });
 
         try {
-            const response = await fetch('http://localhost:3000/send', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/send`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -82,10 +82,12 @@ export default function Contact() {
                                 </div>
                             )}
                             <div>
-                                <label className="block mb-2 font-medium text-slate-400 text-sm">Name</label>
+                                <label htmlFor="name" className="block mb-2 font-medium text-slate-400 text-sm">Name</label>
                                 <input
                                     type="text"
+                                    id="name"
                                     required
+                                    autoComplete='on'
                                     className="bg-slate-900 px-4 py-3 border border-slate-800 focus:border-purple-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500 w-full text-white transition-colors"
                                     placeholder="Your Name"
                                     value={formState.name}
@@ -94,10 +96,12 @@ export default function Contact() {
                                 />
                             </div>
                             <div>
-                                <label className="block mb-2 font-medium text-slate-400 text-sm">Email</label>
+                                <label htmlFor="email" className="block mb-2 font-medium text-slate-400 text-sm">Email</label>
                                 <input
                                     type="email"
+                                    id="email"
                                     required
+                                    autoComplete='on'
                                     className="bg-slate-900 px-4 py-3 border border-slate-800 focus:border-purple-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500 w-full text-white transition-colors"
                                     placeholder="your@email.com"
                                     value={formState.email}
@@ -106,10 +110,12 @@ export default function Contact() {
                                 />
                             </div>
                             <div>
-                                <label className="block mb-2 font-medium text-slate-400 text-sm">Message</label>
+                                <label htmlFor="message" className="block mb-2 font-medium text-slate-400 text-sm">Message</label>
                                 <textarea
                                     rows={4}
+                                    id="message"
                                     required
+                                    autoComplete='on'
                                     className="bg-slate-900 px-4 py-3 border border-slate-800 focus:border-purple-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500 w-full text-white transition-colors resize-none custom-scrollbar"
                                     placeholder="Tell me about your project..."
                                     value={formState.message}

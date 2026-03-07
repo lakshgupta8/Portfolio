@@ -8,6 +8,7 @@ function createRawEmail(input: EmailInput): string {
         `To: ${input.receiverEmail}`,
         `Subject: Message from ${input.name}`,
         "",
+        input.senderEmail,
         input.message
     ].join("\n");
 
@@ -26,10 +27,17 @@ export async function sendEmail(input: EmailInput) {
 
     const raw = createRawEmail(input);
 
-    await gmail.users.messages.send({
-        userId: "me",
-        requestBody: {
-            raw
+    try {
+        await gmail.users.messages.send({
+            userId: "me",
+            requestBody: {
+                raw
+            }
+        });
+    } catch (error: any) {
+        if (error.message.includes('invalid_grant')) {
+            throw new Error('Authentication expired. Please re-authorize at /auth');
         }
-    });
+        throw error;
+    }
 }
