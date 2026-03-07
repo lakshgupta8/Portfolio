@@ -15,7 +15,7 @@ app.get("/auth", (req, res) => {
     res.redirect(getAuthUrl());
 });
 
-app.get("/oauth2callback", async (req, res) => {
+app.get("/oauth2callback", async (_req, res) => {
     const code = req.query.code as string;
     await setCredentials(code);
     res.send("Authentication successful");
