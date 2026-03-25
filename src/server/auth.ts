@@ -16,6 +16,19 @@ export const SCOPES = [
 
 const TOKEN_PATH = "tokens.json";
 
+// Listen for token refresh events and save them automatically
+oauth2Client.on("tokens", (tokens) => {
+    if (tokens.refresh_token) {
+        // Only update if we get a new refresh_token or store existing one
+        fs.writeFileSync(TOKEN_PATH, JSON.stringify(oauth2Client.credentials, null, 2));
+        console.log("Tokens refreshed and saved to tokens.json");
+    } else {
+        // Always save updated access tokens
+        fs.writeFileSync(TOKEN_PATH, JSON.stringify(oauth2Client.credentials, null, 2));
+        console.log("Access token refreshed and saved to tokens.json");
+    }
+});
+
 // Load tokens: prefer GMAIL_TOKENS env var (for Render), fall back to tokens.json (local dev)
 function loadTokens() {
     if (process.env.GMAIL_TOKENS) {
@@ -45,6 +58,7 @@ loadTokens();
 export function getAuthUrl() {
     return oauth2Client.generateAuthUrl({
         access_type: "offline",
+        prompt: "consent",
         scope: SCOPES
     });
 }
