@@ -14,7 +14,8 @@ export default function Contact() {
         setStatus({ type: null, message: '' });
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/send`, {
+            const apiUrl = `${import.meta.env.VITE_API_URL || ""}/send`;
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -28,14 +29,14 @@ export default function Contact() {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to send message');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Failed to send message');
             }
 
             setStatus({ type: 'success', message: 'Message sent successfully!' });
             setFormState({ name: '', email: '', message: '' });
         } catch (error) {
-            console.error(error);
-            setStatus({ type: 'error', message: 'Failed to send message. Please try again.' });
+            setStatus({ type: 'error', message: error instanceof Error ? error.message : 'Failed to send message. Please try again.' });
         } finally {
             setIsSubmitting(false);
         }

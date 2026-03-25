@@ -39,7 +39,7 @@ app.post("/send", async (req, res) => {
         if (error instanceof Error && error.message.includes('Authentication expired')) {
             res.status(401).json({ error: error.message });
         } else {
-            res.status(500).json({ error: 'Failed to send email' });
+            res.status(500).json({ error: 'Failed to send message' });
         }
     }
 });
@@ -51,7 +51,7 @@ const distPath = path.resolve(process.cwd(), "dist");
 if (fs.existsSync(distPath)) {
     app.use(express.static(distPath));
 
-    app.get("/{*splat}", (_req, res) => {
+    app.get("*", (_req, res) => {
         res.sendFile(path.resolve(distPath, "index.html"));
     });
 }
@@ -60,6 +60,10 @@ if (fs.existsSync(distPath)) {
 
 const PORT = process.env.PORT || 10000;
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== "production") {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+
+export { app };
