@@ -30,12 +30,14 @@ export default function Contact() {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || 'Failed to send message');
+                console.error('Server error response:', errorData);
+                throw new Error(errorData.details || errorData.error || 'Failed to send message');
             }
 
             setStatus({ type: 'success', message: 'Message sent successfully!' });
             setFormState({ name: '', email: '', message: '' });
         } catch (error) {
+            console.error('Submission error:', error);
             setStatus({ type: 'error', message: error instanceof Error ? error.message : 'Failed to send message. Please try again.' });
         } finally {
             setIsSubmitting(false);

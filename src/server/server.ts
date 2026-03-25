@@ -2,8 +2,8 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import fs from "fs";
-import { getAuthUrl, setCredentials } from "./auth.ts";
-import { sendEmail } from "./gmail.ts";
+import { getAuthUrl, setCredentials } from "./auth";
+import { sendEmail } from "./gmail";
 import type { EmailInput } from "./types";
 import dotenv from "dotenv";
 
@@ -36,11 +36,12 @@ app.post("/send", async (req, res) => {
         await sendEmail(input);
         res.json({ success: true });
     } catch (error: unknown) {
-        if (error instanceof Error && error.message.includes('Authentication expired')) {
-            res.status(401).json({ error: error.message });
-        } else {
-            res.status(500).json({ error: 'Failed to send message' });
-        }
+        console.error("Error in /send:", error);
+        const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
+        res.status(500).json({ 
+            error: 'Failed to send message',
+            details: errorMessage
+        });
     }
 });
 
