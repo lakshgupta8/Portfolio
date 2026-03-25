@@ -32,10 +32,11 @@ oauth2Client.on("tokens", (tokens) => {
 // Load tokens: prefer GMAIL_TOKENS env var (for Render), fall back to tokens.json (local dev)
 function loadTokens() {
     if (process.env.GMAIL_TOKENS) {
+        console.log("Found GMAIL_TOKENS in env, length:", process.env.GMAIL_TOKENS.length);
         try {
             const tokens = JSON.parse(process.env.GMAIL_TOKENS);
             oauth2Client.setCredentials(tokens);
-            console.log("Loaded tokens from GMAIL_TOKENS env var");
+            console.log("Loaded tokens from GMAIL_TOKENS env var, refresh token present:", !!tokens.refresh_token);
             return;
         } catch (error) {
             console.error("Error parsing GMAIL_TOKENS env var:", error);
