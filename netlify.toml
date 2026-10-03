@@ -1,22 +1,6 @@
 [build]
   command = "npm run build"
   publish = "dist"
-  functions = "netlify/functions"
-
-[[redirects]]
-  from = "/send"
-  to = "/.netlify/functions/api"
-  status = 200
-
-[[redirects]]
-  from = "/auth"
-  to = "/.netlify/functions/api"
-  status = 200
-
-[[redirects]]
-  from = "/oauth2callback"
-  to = "/.netlify/functions/api"
-  status = 200
 
 [[redirects]]
   from = "/*"

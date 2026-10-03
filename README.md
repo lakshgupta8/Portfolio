@@ -24,7 +24,6 @@ All copy lives in `src/data/portfolio.ts`; project facts there were taken from g
 - **Motion:** CSS keyframes and an IntersectionObserver reveal hook (respects `prefers-reduced-motion`)
 - **Hosting:** Netlify (`netlify.toml`)
 
-The repo also carries a small Express + Gmail API backend under `src/server/` and `netlify/functions/`, left over from an earlier contact form. The current site contacts by `mailto:` and does not call it.
 
 ## Getting started
 
@@ -41,4 +40,3 @@ Build for production with `npm run build` and preview the output with `npm run p
 - `npm run build` — type-check and build to `dist/`
 - `npm run preview` — serve the production build locally
 - `npm run lint` — run ESLint
-- `npm run server` / `npm start` — run the legacy Express backend

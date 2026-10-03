@@ -41,4 +41,3 @@ build_error.log*
 # Bun
 bun.lock
 .turbo
-tokens.json
