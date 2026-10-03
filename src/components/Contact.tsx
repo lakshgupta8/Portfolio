@@ -13,7 +13,7 @@ export default function Contact() {
           Let's build something → {EMAIL}
         </a>
         <p className="contact-sub" data-reveal="">
-          Hiring for a React or full-stack role? Send a job description and a repo to look at.
+          Hiring a software engineer for web, games or mobile? Send a job description and a repo to look at.
           I reply within a day.
         </p>
         <div className="contact-footer" data-reveal="">

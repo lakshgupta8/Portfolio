@@ -7,8 +7,8 @@ A black and white, single-page portfolio built on the **Modernist** design syste
 1. **Hero** — headline, lede and a grayscale portrait.
 2. **Marquee** — the toolset, scrolling.
 3. **Stats** — repositories, live deployments, apps shipped.
-4. **01 — Selected work** — HorizonHue as a featured case, then six more apps with live and source links.
-5. **02 — Stack** — six groups of tools, each one used in a shipped project.
+4. **01 — Selected work** — HorizonHue and EBB as featured cases, then six more builds across web, Unity, Godot and Flutter with live and source links.
+5. **02 — Stack** — six groups: web frontend, backend, games, mobile, testing and delivery, languages.
 6. **03 — The road so far** — a timeline built from repository dates.
 7. **04 — About** — a short bio plus status, focus and location.
 8. **05 — Contact** — the ink poster with email, GitHub and LinkedIn.

@@ -1,5 +1,5 @@
 import { ArrowUpRight } from 'lucide-react';
-import { FEATURED, GITHUB_URL, PROJECTS, type Project } from '../data/portfolio';
+import { FEATURED, GITHUB_URL, MORE_PROJECTS, PROJECTS, type Project } from '../data/portfolio';
 
 function Links({ project }: { project: Project }) {
   return (
@@ -18,6 +18,17 @@ function Links({ project }: { project: Project }) {
   );
 }
 
+function Meta({ project }: { project: Project }) {
+  return (
+    <div className="project-meta">
+      <span className="project-num">{project.num}</span>
+      <span className="project-kind">
+        {project.kind} · {project.year}
+      </span>
+    </div>
+  );
+}
+
 export default function Work() {
   return (
     <section id="work" className="section">
@@ -25,39 +36,30 @@ export default function Work() {
         <div className="section-head" data-reveal="">
           <h2 className="eyebrow">01 — Selected work</h2>
           <p className="section-title">
-            Seven apps, each deployed and open-source. One of them has its own backend worth a
-            closer look.
+            Eight builds across the browser, two game engines and Android. Two of them get a closer
+            look.
           </p>
         </div>
 
         <div className="cell-grid projects-grid">
-          <article className="cell featured" data-reveal="">
-            <div className="featured-main">
-              <div className="project-meta">
-                <span className="project-num">{FEATURED.num}</span>
-                <span className="project-year">Featured · {FEATURED.year}</span>
-              </div>
-              <h3 className="featured-title">{FEATURED.title}</h3>
-              <p className="featured-desc">{FEATURED.desc}</p>
-              <p className="project-stack">{FEATURED.stack}</p>
-              <Links project={FEATURED} />
-            </div>
-            <div className="featured-side">
-              <p className="featured-side-label">What's inside</p>
+          {FEATURED.map((project) => (
+            <article key={project.num} className="cell featured" data-reveal="">
+              <Meta project={project} />
+              <h3 className="featured-title">{project.title}</h3>
+              <p className="featured-desc">{project.desc}</p>
+              <p className="project-stack">{project.stack}</p>
               <ul className="featured-list">
-                {FEATURED.highlights.map((item) => (
+                {project.highlights.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-            </div>
-          </article>
+              <Links project={project} />
+            </article>
+          ))}
 
           {PROJECTS.map((project) => (
             <article key={project.num} className="cell project" data-reveal="">
-              <div className="project-meta">
-                <span className="project-num">{project.num}</span>
-                <span className="project-year">{project.year}</span>
-              </div>
+              <Meta project={project} />
               <h3 className="project-title">{project.title}</h3>
               <p className="project-desc">{project.desc}</p>
               <p className="project-stack">{project.stack}</p>
@@ -67,7 +69,16 @@ export default function Work() {
         </div>
 
         <p className="projects-note" data-reveal="">
-          Thirty more repositories, from a click counter to a Next.js dashboard, on{' '}
+          Also built:{' '}
+          {MORE_PROJECTS.map((item, index) => (
+            <span key={item.href}>
+              <a href={item.href} target="_blank" rel="noopener noreferrer">
+                {item.title}
+              </a>
+              {index < MORE_PROJECTS.length - 1 ? ', ' : ''}
+            </span>
+          ))}
+          , and thirty more on{' '}
           <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
             github.com/lakshgupta8
           </a>

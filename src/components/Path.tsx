@@ -7,8 +7,8 @@ export default function Path() {
         <div className="section-head" data-reveal="">
           <h2 className="eyebrow">03 — The road so far</h2>
           <p className="section-title">
-            Twelve months from a first Tailwind page to a Next.js app with migrations and error
-            tracking.
+            Fifteen months from a first Tailwind page to a shipped game, a Unity pipeline and an
+            Android app.
           </p>
         </div>
         <ol className="path">
