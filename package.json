@@ -12,18 +12,14 @@
     "start": "npx tsx src/server/server.ts"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.18",
-    "autoprefixer": "^10.4.23",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "framer-motion": "^12.23.26",
     "googleapis": "^171.2.0",
     "lucide-react": "^0.561.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "serverless-http": "^4.0.0",
-    "tailwindcss": "^4.1.18"
+    "serverless-http": "^4.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

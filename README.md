@@ -1,82 +1,44 @@
-# Modern React Portfolio
+# Lakshya Gupta — Portfolio
 
-A professional portfolio web application built with a modern React stack and a dedicated backend for email functionality.
+A black and white, single-page portfolio built on the **Modernist** design system: ink on a light ground, a visible modular grid, zero corner radius and strong 2px rules, set entirely in Archivo.
 
-## 🚀 Tech Stack
+## Sections
 
-### Frontend
+1. **Hero** — headline, lede and a grayscale portrait.
+2. **Marquee** — the toolset, scrolling.
+3. **Stats** — repositories, live deployments, apps shipped.
+4. **01 — Selected work** — HorizonHue as a featured case, then six more apps with live and source links.
+5. **02 — Stack** — six groups of tools, each one used in a shipped project.
+6. **03 — The road so far** — a timeline built from repository dates.
+7. **04 — About** — a short bio plus status, focus and location.
+8. **05 — Contact** — the ink poster with email, GitHub and LinkedIn.
 
-- **Framework:** React 19
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS 4
-- **Animations:** Framer Motion
+All copy lives in `src/data/portfolio.ts`; project facts there were taken from github.com/lakshgupta8. The design tokens and every component style live in `src/index.css`.
+
+## Tech stack
+
+- **Framework:** React 19 + TypeScript
+- **Build tool:** Vite
+- **Styling:** plain CSS on design tokens (no utility framework)
 - **Icons:** Lucide React
-- **Build Tool:** Vite
+- **Motion:** CSS keyframes and an IntersectionObserver reveal hook (respects `prefers-reduced-motion`)
+- **Hosting:** Netlify (`netlify.toml`)
 
-### Backend
+The repo also carries a small Express + Gmail API backend under `src/server/` and `netlify/functions/`, left over from an earlier contact form. The current site contacts by `mailto:` and does not call it.
 
-- **Runtime:** Bun / Node.js
-- **Server:** Express
-- **Authentication:** Google OAuth2 (for Gmail API)
-- **Email Service:** Google Gmail API
-
-## ✨ Features
-
-- **Responsive Design:** Fully responsive layout for all devices.
-- **Dark Mode:** Sleek dark-themed UI.
-- **Animations:** Smooth entry and hover animations powered by Framer Motion.
-- **Contact Form:** Fully functional contact form integrated with Gmail through a custom backend.
-  - Secure OAuth2 authentication.
-  - Token persistence for reliable server operation.
-  - Auto-dismissing status messages.
-
-## 🛠️ Getting Started
-
-### 1. Clone the repository
+## Getting started
 
 ```bash
-git clone <repository-url>
-cd Portfolio
-```
-
-### 2. Install dependencies
-
-```bash
-bun install
-# or
 npm install
+npm run dev
 ```
 
-### 3. Configure Environment Variables
+Build for production with `npm run build` and preview the output with `npm run preview`.
 
-Create a `.env` file in the root directory with the following credentials from your Google Cloud Console:
+## Scripts
 
-```env
-CLIENT_ID=your_google_client_id
-CLIENT_SECRET=your_google_client_secret
-```
-
-### 4. Start the Application
-
-You need to run both the frontend and backend servers.
-
-**Backend Server:**
-
-```bash
-bun run server
-```
-
-_Note: On the first run, visit `http://localhost:{yourPORT)/auth` to authenticate with Google. This will create a `tokens.json` file for persistent access._
-
-**Frontend Development Server:**
-
-```bash
-bun run dev --host
-```
-
-## 📜 Scripts
-
-- `bun run dev` - Start frontend dev server
-- `bun run server` - Start backend Express server
-- `bun run build` - Build frontend for production
-- `bun run preview` - Preview production build
+- `npm run dev` — start the Vite dev server
+- `npm run build` — type-check and build to `dist/`
+- `npm run preview` — serve the production build locally
+- `npm run lint` — run ESLint
+- `npm run server` / `npm start` — run the legacy Express backend

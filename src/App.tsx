@@ -1,23 +1,30 @@
-import Navbar from './components/Navbar';
+import Nav from './components/Nav';
 import Hero from './components/Hero';
+import Marquee from './components/Marquee';
+import Stats from './components/Stats';
+import Work from './components/Work';
+import Stack from './components/Stack';
+import Path from './components/Path';
 import About from './components/About';
-import Skills from './components/Skills';
-import Projects from './components/Projects';
 import Contact from './components/Contact';
-import Footer from './components/Footer';
+import { useReveal } from './hooks/useReveal';
 
 function App() {
+  useReveal();
+
   return (
-    <div className="bg-slate-950 selection:bg-purple-500/30 min-h-screen text-slate-50">
-      <Navbar />
+    <div className="page">
+      <Nav />
       <main>
         <Hero />
+        <Marquee />
+        <Stats />
+        <Work />
+        <Stack />
+        <Path />
         <About />
-        <Skills />
-        <Projects />
-        <Contact />
       </main>
-      <Footer />
+      <Contact />
     </div>
   );
 }
