@@ -13,9 +13,7 @@ export default function Contact() {
           Let's build something → {EMAIL}
         </a>
         <p className="contact-sub" data-reveal="">
-          Hiring a software engineer for web, games or mobile? Send a job description and a repo to look at.
-          I reply within a day.
-        </p>
+          Hiring a software engineer for web, games or mobile? Send a job description and a repo to look at.        </p>
         <div className="contact-footer" data-reveal="">
           <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
             GitHub ↗

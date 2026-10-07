@@ -78,7 +78,7 @@ export default function Work() {
               {index < MORE_PROJECTS.length - 1 ? ', ' : ''}
             </span>
           ))}
-          , and thirty more on{' '}
+          , and the rest on{' '}
           <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
             github.com/lakshgupta8
           </a>

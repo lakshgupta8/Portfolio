@@ -7,7 +7,7 @@ export default function Path() {
         <div className="section-head" data-reveal="">
           <h2 className="eyebrow">03 — The road so far</h2>
           <p className="section-title">
-            Fifteen months from a first Tailwind page to a shipped game, a Unity pipeline and an
+            Fifteen months, from a graphing calculator to a Windows game, a Unity project and an
             Android app.
           </p>
         </div>

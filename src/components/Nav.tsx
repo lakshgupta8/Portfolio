@@ -1,10 +1,10 @@
-import { NAV_LINKS } from '../data/portfolio';
+import { NAME, NAV_LINKS } from '../data/portfolio';
 
 export default function Nav() {
   return (
     <nav className="nav" aria-label="Primary">
       <a href="#top" className="nav-brand">
-        LG<span className="nav-brand-full"> — Lakshya Gupta</span>
+        {NAME}
       </a>
       <div className="nav-links">
         {NAV_LINKS.map((link) => (
