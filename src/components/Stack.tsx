@@ -7,8 +7,7 @@ export default function Stack() {
         <div className="section-head" data-reveal="">
           <h2 className="eyebrow">02 — Stack</h2>
           <p className="section-title">
-            Everything here has shipped in at least one of the projects above. Nothing is
-            aspirational.
+            Everything here is used in at least one public repository. Nothing is aspirational.
           </p>
         </div>
         <div className="cell-grid tiles-grid">
