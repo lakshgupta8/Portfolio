@@ -1,6 +1,6 @@
 // All copy for the site lives here. Project facts, stacks and dates were taken
 // from github.com/lakshgupta8 (repo READMEs, manifests and repo creation dates)
-// on 2026-10-08. Update STATS when the profile moves on.
+// on 2026-10-14. Update STATS when the profile moves on.
 
 export const NAME = 'Lakshya Gupta';
 export const EMAIL = 'lakshya1176@gmail.com';
@@ -30,6 +30,7 @@ export const MARQUEE = [
   'Next.js',
   'Node.js',
   'Express 5',
+  'NestJS',
   'C#',
   'Unity 6',
   'GDScript',
@@ -53,8 +54,8 @@ export interface Stat {
 }
 
 export const STATS: Stat[] = [
-  { value: '41', label: 'Public repositories' },
-  { value: '31', label: 'Repositories with a live link' },
+  { value: '40', label: 'Public repositories' },
+  { value: '32', label: 'Repositories with a live site or download' },
   { value: '3', label: 'Platforms: web, Windows, Android' },
   { value: '2024', label: 'On GitHub since December' },
 ];
@@ -98,16 +99,15 @@ export const FEATURED: FeaturedProject[] = [
     title: 'EBB',
     kind: 'Game · Godot 4',
     year: '2026',
-    desc: 'A top-down pixel-art action roguelite for Windows. The tide is the clock: water rises through every level as you play, and when it catches you the night ends. Distributed as a one-click installer that needs neither Godot nor admin rights.',
+    desc: 'A top-down pixel-art action roguelite for Windows. The tide is the clock: water rises through every level as you play, and when it catches you the night ends. Released as a one-click Windows installer that needs neither Godot nor admin rights; version 1.4.0 is the latest.',
     stack: 'Godot 4.7 · GDScript · GDShader · Inno Setup · PowerShell build scripts · Headless test suite',
     source: `${GITHUB_URL}/EBB`,
     highlights: [
-      'Four biomes and four bosses, six weapons with two aspects each',
-      '72 run-time upgrades in five families, offered at altars',
-      'Every night records its inputs: replays and ghost races on a seed',
-      'A daily seeded night with a board, plus four other modes',
-      'Full remapping, three assist modes, colourblind and high-contrast water',
-      'The installer updates in place; saves survive updates and uninstalls',
+      'Five biomes and five bosses with two roads through the night, six weapons with two aspects each',
+      '76 run-time upgrades in five families, offered at altars',
+            'Rooms up to two screens by two, half of them generated fresh from each night’s seed',
+      'Replays, ghost races, a daily seeded night with a board, and four other modes',
+      'Full remapping, assist modes, colourblind and high-contrast water; the installer updates in place',
     ],
   },
 ];
@@ -161,18 +161,19 @@ export const PROJECTS: Project[] = [
   },
   {
     num: 'P·08',
-    title: 'TV Show Search',
-    kind: 'Web · Redux',
+    title: 'Manasbal',
+    kind: 'Web · Monorepo · Team',
     year: '2026',
-    desc: 'A TV discovery app on the TVmaze API: search shows and people, browse by genre and status, a daily schedule, and show, episode and person pages. Every request flows through one Redux slice and a saga that caches, debounces and retries around the API’s rate limit.',
-    stack: 'React 18 · TypeScript · Redux Toolkit · Redux Saga · React Router · Tailwind CSS v4 · TVmaze API',
-    live: 'https://tvshows-search.netlify.app/',
-    source: `${GITHUB_URL}/TV-Show-Search`,
+    desc: 'A demo multi-vendor marketplace built and run like a real product, at zero cost. A two-person team, with me as lead and backend: a Next.js storefront, a Vite and React seller console, a NestJS API on Fastify and a shared Storybook design system in one pnpm and Turborepo workspace. Payments and delivery are simulated.',
+    stack: 'Next.js · React · NestJS · Fastify · Turborepo · pnpm · Storybook · Vitest · GitHub Actions · CodeQL · SonarCloud',
+    live: 'https://manasbal.vercel.app',
+    source: `${GITHUB_URL}/manasbal`,
   },
 ];
 
 export const MORE_PROJECTS: { title: string; href: string }[] = [
-  { title: 'AwesomeBuy storefront', href: 'https://awesomebuy-commerce.netlify.app/' },
+  { title: 'TV Show Search', href: 'https://tvshows-search.netlify.app/' },
+  { title: 'E-commerce storefront', href: 'https://codeyogi-ecommerce.netlify.app/' },
   { title: 'Recipe Finder', href: 'https://a-recipe-finder.netlify.app/' },
   { title: 'BastionPass', href: 'https://bastionpass.netlify.app/' },
   { title: 'ScribNotes', href: 'https://scribnote.netlify.app/' },
@@ -200,8 +201,8 @@ export const STACK: StackGroup[] = [
     num: '02',
     phase: 'Server',
     title: 'Backend & data',
-    desc: 'An Express API with caching and rate limiting, Postgres through Drizzle, and managed backends such as Appwrite, Firebase and Turso when the client owns the data.',
-    tools: ['Node.js', 'Express 5', 'Netlify Functions', 'PostgreSQL', 'Drizzle ORM', 'SQLite', 'Turso', 'Appwrite', 'Firebase'],
+    desc: 'Express and NestJS APIs, caching and rate limiting, Postgres through Drizzle, and managed backends such as Appwrite, Firebase and Turso when the client owns the data.',
+    tools: ['Node.js', 'Express 5', 'NestJS', 'Netlify Functions', 'PostgreSQL', 'Drizzle ORM', 'SQLite', 'Turso', 'Appwrite', 'Firebase'],
   },
   {
     num: '03',
@@ -222,7 +223,7 @@ export const STACK: StackGroup[] = [
     phase: 'Quality',
     title: 'Testing & delivery',
     desc: 'Unit, component and headless game tests; GitHub Actions on every push; installers and APKs so a build is something a person can run.',
-    tools: ['Vitest', 'Testing Library', 'Playwright', 'GitHub Actions', 'Sentry', 'ESLint', 'Prettier', 'PowerShell'],
+    tools: ['Vitest', 'Testing Library', 'Playwright', 'GitHub Actions', 'CodeQL', 'SonarCloud', 'Sentry', 'ESLint', 'Prettier', 'PowerShell'],
   },
   {
     num: '06',
@@ -239,66 +240,35 @@ export interface Milestone {
   detail: string;
 }
 
-export const PATH: Milestone[] = [
-  {
-    when: 'Jul 2025',
-    title: 'A first project',
-    detail: 'EQUANO, a Next.js graphing calculator with canvas rendering and an expression parser, generated with V0 and refined by hand.',
-  },
-  {
-    when: 'Sep 2025',
-    title: 'Foundations, properly',
-    detail: 'HTML, atomic CSS and Tailwind, then array methods in JavaScript. Every CodeYogi assignment deployed to its own site.',
-  },
-  {
-    when: 'Oct 2025',
-    title: 'First React',
-    detail: 'State and the useState hook, then React Router. A product listing grows a detail page.',
-  },
-  {
-    when: 'Nov 2025',
-    title: 'Real app patterns',
-    detail: 'Context, higher-order components, REST integration, Formik and Yup, JWT login and a checkout page.',
-  },
-  {
-    when: 'Dec 2025',
-    title: 'TypeScript by default',
-    detail: 'Everything new is typed. A TypeScript todo app, then custom hooks and dark-mode theming with Tailwind v4.',
-  },
-  {
-    when: 'Feb 2026',
-    title: 'First full-stack builds',
-    detail: 'HorizonHue: a React front end on an Express API with caching and CI. A Next.js dashboard with auth and Postgres. MediaFlow takes its first commit.',
-  },
-  {
-    when: 'Mar 2026',
-    title: 'Serious state',
-    detail: 'Redux and Redux Saga across AwesomeBuy, Recipe Finder, TV Show Search and a mood tracker. Storybook for components.',
-  },
-  {
-    when: 'May 2026',
-    title: 'Small apps, many hooks',
-    detail: 'A music player on useRef, ScribNotes on localStorage and cookies, BastionPass for form handling, and the first Money Tabs.',
-  },
-  {
-    when: 'Jul 2026',
-    title: 'Next.js in production shape',
-    detail: 'Repair Shop on the App Router with Drizzle, Neon Postgres, Kinde Auth and Sentry.',
-  },
-  {
-    when: 'Sep 2026',
-    title: 'Into game engines',
-    detail: 'The Last Cartographer in Unity 6: a 2.5D metroidvania with a story bible, play-mode tests and CI that builds for Windows.',
-  },
-  {
-    when: 'Oct 2026',
-    title: 'Two more platforms',
-    detail: 'EBB, a Godot 4 roguelite with a Windows installer, and Habitual Offender, a Flutter habit tracker on Firebase. MediaFlow ships live on Vercel.',
-  },
+const MILESTONES: [when: string, title: string, detail: string][] = [
+  ['Jul 2025', 'A first project',
+    'EQUANO, a Next.js graphing calculator with canvas rendering and an expression parser, generated with V0 and refined by hand.'],
+  ['Sep 2025', 'Foundations, properly',
+    'HTML, atomic CSS and Tailwind, then array methods in JavaScript. Every CodeYogi assignment deployed to its own site.'],
+  ['Oct 2025', 'First React',
+    'State and the useState hook, then React Router. A product listing grows a detail page.'],
+  ['Nov 2025', 'Real app patterns',
+    'Context, higher-order components, REST integration, Formik and Yup, JWT login and a checkout page.'],
+  ['Dec 2025', 'TypeScript by default',
+    'Everything new is typed. A TypeScript todo app, then custom hooks and dark-mode theming with Tailwind v4.'],
+  ['Feb 2026', 'First full-stack builds',
+    'HorizonHue: a React front end on an Express API with caching and CI. A Next.js dashboard with auth and Postgres. MediaFlow takes its first commit.'],
+  ['Mar 2026', 'Serious state',
+    'Redux and Redux Saga across an e-commerce store, Recipe Finder, TV Show Search and a mood tracker. Storybook for components.'],
+  ['May 2026', 'Small apps, many hooks',
+    'A music player on useRef, ScribNotes on localStorage and cookies, BastionPass for form handling, and the first Money Tabs.'],
+  ['Jul 2026', 'Next.js in production shape',
+    'Repair Shop on the App Router with Drizzle, Neon Postgres, Kinde Auth and Sentry.'],
+  ['Sep 2026', 'Into game engines',
+    'The Last Cartographer in Unity 6: a 2.5D metroidvania with a story bible, play-mode tests and CI that builds for Windows.'],
+  ['Oct 2026', 'Two more platforms',
+    'EBB, a Godot 4 roguelite with a Windows installer, now at 1.4.0, and Habitual Offender, a Flutter habit tracker on Firebase. MediaFlow ships live on Vercel, and Manasbal, a team marketplace, goes up on Vercel too.'],
 ];
 
+export const PATH: Milestone[] = MILESTONES.map(([when, title, detail]) => ({ when, title, detail }));
+
 export const ABOUT = {
-  copy: "I'm a self-driven engineer who learns by building in public: 41 repositories since December 2024, from a click counter to a Windows game with its own installer. The language follows the target, so it's TypeScript in the browser, C# and GDScript in the engines, Dart on the phone. The larger builds use AI coding tools (Claude Code, V0, Gemini) and their READMEs say so; I direct the work, playtest it and decide what ships. Tests, CI and installers go in where they earn their keep.",
+  copy: "I'm a self-driven engineer who learns by building in public: 40 public repositories since December 2024, from a click counter to a Windows game with its own installer. The language follows the target, so it's TypeScript in the browser, C# and GDScript in the engines, Dart on the phone. The larger builds use AI coding tools (Claude Code, V0, Gemini) and their READMEs say so; I direct the work, playtest it and decide what ships. Tests, CI and installers go in where they earn their keep.",
   facts: [
     { label: 'Status', value: 'Open to full-time roles' },
     { label: 'Focus', value: 'Web · Games · Mobile' },
