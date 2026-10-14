@@ -240,63 +240,32 @@ export interface Milestone {
   detail: string;
 }
 
-export const PATH: Milestone[] = [
-  {
-    when: 'Jul 2025',
-    title: 'A first project',
-    detail: 'EQUANO, a Next.js graphing calculator with canvas rendering and an expression parser, generated with V0 and refined by hand.',
-  },
-  {
-    when: 'Sep 2025',
-    title: 'Foundations, properly',
-    detail: 'HTML, atomic CSS and Tailwind, then array methods in JavaScript. Every CodeYogi assignment deployed to its own site.',
-  },
-  {
-    when: 'Oct 2025',
-    title: 'First React',
-    detail: 'State and the useState hook, then React Router. A product listing grows a detail page.',
-  },
-  {
-    when: 'Nov 2025',
-    title: 'Real app patterns',
-    detail: 'Context, higher-order components, REST integration, Formik and Yup, JWT login and a checkout page.',
-  },
-  {
-    when: 'Dec 2025',
-    title: 'TypeScript by default',
-    detail: 'Everything new is typed. A TypeScript todo app, then custom hooks and dark-mode theming with Tailwind v4.',
-  },
-  {
-    when: 'Feb 2026',
-    title: 'First full-stack builds',
-    detail: 'HorizonHue: a React front end on an Express API with caching and CI. A Next.js dashboard with auth and Postgres. MediaFlow takes its first commit.',
-  },
-  {
-    when: 'Mar 2026',
-    title: 'Serious state',
-    detail: 'Redux and Redux Saga across an e-commerce store, Recipe Finder, TV Show Search and a mood tracker. Storybook for components.',
-  },
-  {
-    when: 'May 2026',
-    title: 'Small apps, many hooks',
-    detail: 'A music player on useRef, ScribNotes on localStorage and cookies, BastionPass for form handling, and the first Money Tabs.',
-  },
-  {
-    when: 'Jul 2026',
-    title: 'Next.js in production shape',
-    detail: 'Repair Shop on the App Router with Drizzle, Neon Postgres, Kinde Auth and Sentry.',
-  },
-  {
-    when: 'Sep 2026',
-    title: 'Into game engines',
-    detail: 'The Last Cartographer in Unity 6: a 2.5D metroidvania with a story bible, play-mode tests and CI that builds for Windows.',
-  },
-  {
-    when: 'Oct 2026',
-    title: 'Two more platforms',
-    detail: 'EBB, a Godot 4 roguelite with a Windows installer, now at 1.4.0, and Habitual Offender, a Flutter habit tracker on Firebase. MediaFlow ships live on Vercel, and Manasbal, a team marketplace, goes up on Vercel too.',
-  },
+const MILESTONES: [when: string, title: string, detail: string][] = [
+  ['Jul 2025', 'A first project',
+    'EQUANO, a Next.js graphing calculator with canvas rendering and an expression parser, generated with V0 and refined by hand.'],
+  ['Sep 2025', 'Foundations, properly',
+    'HTML, atomic CSS and Tailwind, then array methods in JavaScript. Every CodeYogi assignment deployed to its own site.'],
+  ['Oct 2025', 'First React',
+    'State and the useState hook, then React Router. A product listing grows a detail page.'],
+  ['Nov 2025', 'Real app patterns',
+    'Context, higher-order components, REST integration, Formik and Yup, JWT login and a checkout page.'],
+  ['Dec 2025', 'TypeScript by default',
+    'Everything new is typed. A TypeScript todo app, then custom hooks and dark-mode theming with Tailwind v4.'],
+  ['Feb 2026', 'First full-stack builds',
+    'HorizonHue: a React front end on an Express API with caching and CI. A Next.js dashboard with auth and Postgres. MediaFlow takes its first commit.'],
+  ['Mar 2026', 'Serious state',
+    'Redux and Redux Saga across an e-commerce store, Recipe Finder, TV Show Search and a mood tracker. Storybook for components.'],
+  ['May 2026', 'Small apps, many hooks',
+    'A music player on useRef, ScribNotes on localStorage and cookies, BastionPass for form handling, and the first Money Tabs.'],
+  ['Jul 2026', 'Next.js in production shape',
+    'Repair Shop on the App Router with Drizzle, Neon Postgres, Kinde Auth and Sentry.'],
+  ['Sep 2026', 'Into game engines',
+    'The Last Cartographer in Unity 6: a 2.5D metroidvania with a story bible, play-mode tests and CI that builds for Windows.'],
+  ['Oct 2026', 'Two more platforms',
+    'EBB, a Godot 4 roguelite with a Windows installer, now at 1.4.0, and Habitual Offender, a Flutter habit tracker on Firebase. MediaFlow ships live on Vercel, and Manasbal, a team marketplace, goes up on Vercel too.'],
 ];
+
+export const PATH: Milestone[] = MILESTONES.map(([when, title, detail]) => ({ when, title, detail }));
 
 export const ABOUT = {
   copy: "I'm a self-driven engineer who learns by building in public: 40 public repositories since December 2024, from a click counter to a Windows game with its own installer. The language follows the target, so it's TypeScript in the browser, C# and GDScript in the engines, Dart on the phone. The larger builds use AI coding tools (Claude Code, V0, Gemini) and their READMEs say so; I direct the work, playtest it and decide what ships. Tests, CI and installers go in where they earn their keep.",
