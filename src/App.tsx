@@ -1,4 +1,5 @@
 import Nav from './components/Nav';
+import Cursor from './components/Cursor';
 import Hero from './components/Hero';
 import Marquee from './components/Marquee';
 import Stats from './components/Stats';
@@ -14,6 +15,7 @@ function App() {
 
   return (
     <div className="page">
+      <Cursor />
       <Nav />
       <main>
         <Hero />

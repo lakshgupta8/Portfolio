@@ -1,39 +1,211 @@
+import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
-import { EMAIL, HERO, NAME } from '../data/portfolio';
+import { EMAIL, HERO, HERO_TAGS, NAME } from '../data/portfolio';
+import { clamp, hasFinePointer, onFrame, pointer, prefersReducedMotion, smoothing } from '../lib/motion';
+import ProximityText from './ProximityText';
+
+const IDLE_AFTER_MS = 2200;
+const LAYER_TRAVEL = 34;
+
+function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero || prefersReducedMotion()) return;
+
+    const layers = Array.from(hero.querySelectorAll<HTMLElement>('[data-depth]')).map((el) => ({
+      el,
+      depth: Number(el.dataset.depth),
+      slide: Number(el.dataset.slide ?? 0),
+    }));
+    const figure = hero.querySelector<HTMLElement>('.hero-figure');
+    const frame = hero.querySelector<HTMLElement>('.hero-photo-frame');
+    const fine = hasFinePointer();
+
+    let visible = true;
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+    });
+    io.observe(hero);
+
+    let mx = 0;
+    let my = 0;
+    let lensX = 0.5;
+    let lensY = 0.35;
+    let lensR = 0;
+
+    const stop = onFrame((time, dt) => {
+      if (!visible) return;
+      const k = smoothing(0.08, dt);
+      const heroRect = hero.getBoundingClientRect();
+      const figRect = frame?.getBoundingClientRect();
+
+      const inHero =
+        pointer.x >= heroRect.left &&
+        pointer.x <= heroRect.right &&
+        pointer.y >= heroRect.top &&
+        pointer.y <= heroRect.bottom;
+      const live = fine && inHero && time - pointer.movedAt < IDLE_AFTER_MS;
+
+      // Cursor drives the scene; without one, the scene drifts on its own.
+      const tx = live
+        ? clamp(((pointer.x - heroRect.left) / heroRect.width) * 2 - 1, -1, 1)
+        : Math.sin(time * 0.00042) * 0.55;
+      const ty = live
+        ? clamp(((pointer.y - heroRect.top) / heroRect.height) * 2 - 1, -1, 1)
+        : Math.sin(time * 0.00057 + 1.3) * 0.45;
+      mx += (tx - mx) * k;
+      my += (ty - my) * k;
+
+      const progress = clamp(-heroRect.top / heroRect.height, 0, 1);
+
+      layers.forEach(({ el, depth, slide }) => {
+        const x = mx * depth * LAYER_TRAVEL + slide * progress * 240;
+        const y = my * depth * LAYER_TRAVEL - progress * depth * 90;
+        el.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0)`;
+      });
+      hero.style.setProperty('--hero-progress', progress.toFixed(3));
+
+      if (!figure || !frame || !figRect) return;
+      figure.style.setProperty('--tilt-x', `${(-my * 7).toFixed(2)}deg`);
+      figure.style.setProperty('--tilt-y', `${(mx * 9).toFixed(2)}deg`);
+
+      // The colour lens: follows the cursor over the photo, wanders when idle.
+      const overFigure =
+        live &&
+        pointer.x > figRect.left - 40 &&
+        pointer.x < figRect.right + 40 &&
+        pointer.y > figRect.top - 40 &&
+        pointer.y < figRect.bottom + 40;
+      let targetX: number;
+      let targetY: number;
+      let targetR: number;
+      if (overFigure) {
+        targetX = (pointer.x - figRect.left) / figRect.width;
+        targetY = (pointer.y - figRect.top) / figRect.height;
+        targetR = 0.34;
+      } else if (live) {
+        targetX = lensX;
+        targetY = lensY;
+        targetR = 0;
+      } else {
+        targetX = 0.5 + Math.sin(time * 0.0006) * 0.22;
+        targetY = 0.36 + Math.sin(time * 0.00083 + 0.7) * 0.14;
+        targetR = 0.2;
+      }
+      const lk = smoothing(0.16, dt);
+      lensX += (targetX - lensX) * lk;
+      lensY += (targetY - lensY) * lk;
+      lensR += (targetR - lensR) * smoothing(0.1, dt);
+      frame.style.setProperty('--lens-x', `${(lensX * 100).toFixed(2)}%`);
+      frame.style.setProperty('--lens-y', `${(lensY * 100).toFixed(2)}%`);
+      frame.style.setProperty('--lens-r', `${(lensR * figRect.width).toFixed(1)}px`);
+    });
+
+    return () => {
+      stop();
+      io.disconnect();
+    };
+  }, [heroRef]);
+}
+
+function NowShipping() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const id = window.setInterval(() => setIndex((i) => (i + 1) % HERO.now.length), 2600);
+    return () => window.clearInterval(id);
+  }, []);
+
+  return (
+    <div className="hero-now">
+      <span className="hero-now-label">
+        <span className="hero-now-dot" aria-hidden="true" />
+        Now shipping
+      </span>
+      <ul className="hero-now-list" aria-live="off">
+        {HERO.now.map((item, i) => (
+          <li key={item} className={i === index ? 'is-active' : undefined}>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export default function Hero() {
+  const heroRef = useRef<HTMLElement>(null);
+  useHeroMotion(heroRef);
+
   return (
-    <header id="top" className="hero">
-      <div>
-        <p className="hero-kicker">{HERO.kicker}</p>
-        <h1 className="hero-title">
-          {HERO.lines.map((line) => (
-            <span key={line} className="hero-line">
-              <span>{line}</span>
-            </span>
+    <header id="top" className="hero" ref={heroRef}>
+      <div className="hero-grid" data-depth="-0.25" aria-hidden="true" />
+      <div className="hero-ghost" data-depth="-0.7" data-slide="-1" aria-hidden="true">
+        <span>Lakshya</span>
+        <span>Gupta</span>
+      </div>
+
+      <div className="hero-inner">
+        <div className="hero-copy" data-depth="0.12">
+          <p className="hero-kicker">{HERO.kicker}</p>
+          <h1 className="hero-title">
+            {HERO.lines.map((line) => (
+              <span key={line} className="hero-line">
+                <span>
+                  <ProximityText text={line} />
+                </span>
+              </span>
+            ))}
+          </h1>
+          <p className="hero-lede">{HERO.lede}</p>
+          <NowShipping />
+          <div className="hero-actions">
+            <a className="btn btn-primary" href="#work" data-magnetic="">
+              See the work
+              <ArrowUpRight size={15} strokeWidth={2.4} aria-hidden="true" />
+            </a>
+            <a className="btn btn-secondary" href={`mailto:${EMAIL}`} data-magnetic="">
+              Email me
+            </a>
+          </div>
+        </div>
+
+        <div className="hero-stage">
+          <div className="hero-figure-wrap" data-depth="0.35">
+            <figure className="hero-figure" data-cursor="Look">
+              <div className="hero-photo-frame">
+                <img className="hero-photo" src="/lakshya.png" alt={NAME} width={1024} height={1536} />
+                <img
+                  className="hero-photo hero-photo-color"
+                  src="/lakshya.png"
+                  alt=""
+                  aria-hidden="true"
+                  width={1024}
+                  height={1536}
+                />
+                <span className="hero-lens" aria-hidden="true" />
+              </div>
+              <figcaption>{HERO.caption}</figcaption>
+            </figure>
+          </div>
+          {HERO_TAGS.map((tag) => (
+            <a
+              key={tag.label}
+              className={`hero-tag hero-tag-${tag.slot}`}
+              href={tag.href}
+              data-depth={tag.depth}
+            >
+              <span className="hero-tag-kind">{tag.kind}</span>
+              {tag.label}
+            </a>
           ))}
-          <span className="hero-line">
-            <span>
-              {HERO.lastLine}
-              <span className="hero-accent">{HERO.lastLineAccent}</span>
-            </span>
-          </span>
-        </h1>
-        <p className="hero-lede">{HERO.lede}</p>
-        <div className="hero-actions">
-          <a className="btn btn-primary" href="#work">
-            See the work
-            <ArrowUpRight size={15} strokeWidth={2.4} aria-hidden="true" />
-          </a>
-          <a className="btn btn-secondary" href={`mailto:${EMAIL}`}>
-            Email me
-          </a>
         </div>
       </div>
-      <figure className="hero-figure grayscale">
-        <img src="/lakshya.png" alt={NAME} width={1024} height={1536} />
-        <figcaption>{HERO.caption}</figcaption>
-      </figure>
+
+      <a className="hero-scroll" href="#work" aria-label="Scroll to work">
+        <span className="hero-scroll-line" aria-hidden="true" />
+        Scroll
+      </a>
     </header>
   );
 }
