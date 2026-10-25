@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { NAME, NAV_LINKS } from '../data/portfolio';
-import { onFrame, scroll } from '../lib/motion';
 
 export default function Nav() {
   const barRef = useRef<HTMLSpanElement>(null);
@@ -8,14 +7,18 @@ export default function Nav() {
   useEffect(() => {
     const bar = barRef.current;
     if (!bar) return;
-    let last = -1;
-    return onFrame(() => {
+    const update = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = max > 0 ? scroll.y / max : 0;
-      if (Math.abs(progress - last) < 0.0005) return;
-      last = progress;
+      const progress = max > 0 ? window.scrollY / max : 0;
       bar.style.transform = `scaleX(${progress.toFixed(4)})`;
-    });
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
   }, []);
 
   return (

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { hasFinePointer, onFrame, pointer, prefersReducedMotion, smoothing } from '../lib/motion';
+import { hasFinePointer, onFrameWhileVisible, pointer, pointerActive, prefersReducedMotion, smoothing } from '../lib/motion';
 
 const SCALE = 0.5; // the canvas renders at half size; the blobs are soft anyway
 const IDLE_AFTER_MS = 2200;
@@ -43,22 +43,18 @@ export default function HeroField() {
     const ro = new ResizeObserver(resize);
     ro.observe(hero);
 
-    let visible = true;
-    const io = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-    });
-    io.observe(hero);
 
     // A spring-driven leader, then the chain of blobs behind it.
     const lead = { x: width * 0.62, y: height * 0.45, vx: 0, vy: 0 };
     const trail = BLOBS.map(() => ({ x: lead.x, y: lead.y }));
     const phase = BLOBS.map(() => Math.random() * Math.PI * 2);
 
-    const stop = onFrame((time, dt) => {
-      if (!visible || width === 0) return;
+    const stop = onFrameWhileVisible(hero, (time, dt) => {
+      if (width === 0) return;
       const rect = hero.getBoundingClientRect();
       const live =
         fine &&
+        pointerActive() &&
         (time - pointer.movedAt < IDLE_AFTER_MS || !ambient) &&
         pointer.x >= rect.left &&
         pointer.x <= rect.right &&
@@ -86,8 +82,10 @@ export default function HeroField() {
       let py = lead.y;
       BLOBS.forEach((blob, i) => {
         const p = phase[i];
-        const wx = blob.wobble * (Math.sin(time * blob.f1 + p) + 0.6 * Math.sin(time * blob.f2 + p * 1.7));
-        const wy = blob.wobble * (Math.cos(time * blob.f2 + p) + 0.6 * Math.sin(time * blob.f1 + p * 2.3));
+        // Each blob's own wander; held still for reduced-motion visitors.
+        const w = ambient ? blob.wobble : 0;
+        const wx = w * (Math.sin(time * blob.f1 + p) + 0.6 * Math.sin(time * blob.f2 + p * 1.7));
+        const wy = w * (Math.cos(time * blob.f2 + p) + 0.6 * Math.sin(time * blob.f1 + p * 2.3));
         const k = smoothing(blob.lag, dt);
         trail[i].x += (px + wx - trail[i].x) * k;
         trail[i].y += (py + wy - trail[i].y) * k;
@@ -113,7 +111,6 @@ export default function HeroField() {
     return () => {
       stop();
       ro.disconnect();
-      io.disconnect();
     };
   }, []);
 

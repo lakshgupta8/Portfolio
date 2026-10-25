@@ -23,23 +23,45 @@ export default function Marquee() {
 
   useEffect(() => {
     const track = trackRef.current;
-    if (!track) return;
-    const base = prefersReducedMotion() ? 0 : BASE_SPEED;
+    // Reduced motion: no JS drive, and the CSS animation is switched off too.
+    if (!track || prefersReducedMotion()) return;
 
     track.classList.add('is-driven');
     let offset = 0;
     let direction = -1;
+    let velocity = 0;
+    let lastY = scroll.y;
 
-    return onFrame((_time, dt) => {
-      const velocity = scroll.velocity;
+    const tick = (_time: number, dt: number) => {
+      velocity += (scroll.y - lastY - velocity) * 0.2;
+      lastY = scroll.y;
       if (Math.abs(velocity) > 0.5) direction = velocity > 0 ? -1 : 1;
       const boost = Math.min(Math.abs(velocity) * 0.04, 1.6);
-      offset += direction * (base + boost) * dt;
+      offset += direction * (BASE_SPEED + boost) * dt;
       const half = track.scrollWidth / 2;
       if (half > 0) offset = ((offset % half) - half) % half;
       const skew = clamp(-velocity * 0.12, -8, 8);
       track.style.transform = `translate3d(${offset.toFixed(2)}px, 0, 0) skewX(${skew.toFixed(2)}deg)`;
+    };
+
+    // Only animate while the ticker is on screen.
+    let stop: (() => void) | null = null;
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !stop) {
+        lastY = scroll.y;
+        stop = onFrame(tick);
+      } else if (!entry.isIntersecting && stop) {
+        stop();
+        stop = null;
+      }
     });
+    io.observe(track);
+
+    return () => {
+      io.disconnect();
+      stop?.();
+      track.classList.remove('is-driven');
+    };
   }, []);
 
   return (

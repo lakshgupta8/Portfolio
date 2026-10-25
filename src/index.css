@@ -201,7 +201,7 @@ figure {
   .hero-now-list li {
     transition: none;
   }
-  .marquee-track {
+  .marquee .marquee-track {
     animation: none;
   }
 }
@@ -240,7 +240,8 @@ figure {
   color: var(--color-on-accent);
 }
 
-.btn-primary:hover {
+.btn-primary:hover,
+.btn-primary.is-hover {
   background: var(--color-neutral-800);
   border-color: var(--color-neutral-800);
 }
@@ -254,7 +255,8 @@ figure {
   border-color: var(--color-divider);
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover,
+.btn-secondary.is-hover {
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
 }
 
@@ -667,6 +669,8 @@ figure {
   --color-accent: #201e1d;
   --color-on-accent: #f3f2f2;
   --color-divider: color-mix(in srgb, #201e1d 40%, transparent);
+  --color-neutral-800: #444141;
+  --color-neutral-900: #2d2b2b;
 }
 
 .hero-alt .hero-actions .btn {
@@ -681,6 +685,10 @@ figure {
 
 .hero-alt .hero-actions .btn-secondary {
   background: var(--color-bg);
+}
+
+.hero-alt .hero-actions .btn-secondary.is-hover {
+  background: color-mix(in srgb, var(--color-text) 7%, var(--color-bg));
 }
 
 .hero-ascii {
@@ -719,7 +727,8 @@ figure {
   animation: pf-fade 0.7s both;
 }
 
-.hero-tag:hover {
+.hero-tag:hover,
+.hero-tag.is-hover {
   background: var(--color-text);
   color: var(--color-bg);
 }

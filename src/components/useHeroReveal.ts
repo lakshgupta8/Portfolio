@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { contourPath } from '../lib/contours';
-import { hasFinePointer, onFrame, pointer, prefersReducedMotion } from '../lib/motion';
+import { hasFinePointer, onFrameWhileVisible, pointer, pointerActive, prefersReducedMotion } from '../lib/motion';
 
 const STEP = 14; // grid spacing in px for the reveal outline
 const LIFE_MS = 650; // how long a trail blob takes to melt away
@@ -68,11 +68,6 @@ export function useHeroReveal(
     const ro = new ResizeObserver(resize);
     ro.observe(hero);
 
-    let visible = true;
-    const io = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-    });
-    io.observe(hero);
 
     const lay = (x: number, y: number, time: number) => {
       if (!last) {
@@ -94,13 +89,15 @@ export function useHeroReveal(
       lastTime = time;
     };
 
-    const stop = onFrame((time, dt) => {
-      if (!visible || cols === 0) return;
+    const stop = onFrameWhileVisible(hero, (time, dt) => {
+      if (cols === 0) return;
 
       const rect = hero.getBoundingClientRect();
       const inside =
         pointer.x >= rect.left && pointer.x <= rect.right && pointer.y >= rect.top && pointer.y <= rect.bottom;
-      const live = fine && inside && time - pointer.movedAt < 2400;
+      // The trail grows only with movement (see lay); the hover blob stays while
+      // the cursor rests anywhere in the hero.
+      const live = fine && inside && pointerActive();
       let hover: { x: number; y: number } | null = null;
 
       if (live) {
@@ -174,7 +171,6 @@ export function useHeroReveal(
     return () => {
       stop();
       ro.disconnect();
-      io.disconnect();
     };
   }, [heroRef, altRef]);
 }

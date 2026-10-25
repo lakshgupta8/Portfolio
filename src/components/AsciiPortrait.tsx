@@ -20,28 +20,32 @@ void main() {
 }`;
 
 const FRAGMENT = `
+// Pixel-space maths needs more than fp16 on large canvases; use highp if the GPU has it.
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
 precision mediump float;
+#endif
 uniform sampler2D uImage;
 uniform sampler2D uGlyphs;
-uniform vec2 uRes;
-uniform vec2 uImgOffset;
+uniform vec2 uCells; // canvas size in glyph cells
+uniform vec2 uImgOffset; // photo placement, in canvas UV units
 uniform vec2 uImgSize;
-uniform float uCell;
 uniform float uGlyphCount;
 varying vec2 vUv;
 
 void main() {
   vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
-  vec2 px = uv * uRes;
-
-  vec2 cell = floor(px / uCell);
-  vec2 center = (cell + 0.5) * uCell;
+  // Work in cell units so the numbers stay small enough for any precision.
+  vec2 grid = uv * uCells;
+  vec2 cell = floor(grid);
+  vec2 center = (cell + 0.5) / uCells;
   vec3 photo = texture2D(uImage, clamp((center - uImgOffset) / uImgSize, 0.0, 1.0)).rgb;
   float lum = dot(photo, vec3(0.299, 0.587, 0.114));
   lum = clamp((lum - 0.12) * 1.7, 0.0, 1.0);
   lum = pow(lum, 0.8);
   float index = floor(lum * (uGlyphCount - 0.001));
-  vec2 local = fract(px / uCell);
+  vec2 local = fract(grid);
   float glyph = texture2D(uGlyphs, vec2((index + local.x) / uGlyphCount, local.y)).a;
 
   vec3 ink = vec3(0.125, 0.118, 0.114);
@@ -116,10 +120,9 @@ export default function AsciiPortrait() {
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
     const u = (name: string) => gl.getUniformLocation(program, name);
-    const uRes = u('uRes');
+    const uCells = u('uCells');
     const uImgOffset = u('uImgOffset');
     const uImgSize = u('uImgSize');
-    const uCell = u('uCell');
     gl.uniform1i(u('uImage'), 0);
     gl.uniform1i(u('uGlyphs'), 2);
     gl.uniform1f(u('uGlyphCount'), GLYPHS.length);
@@ -143,25 +146,25 @@ export default function AsciiPortrait() {
     };
 
 
-    let width = 0;
-    let height = 0;
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      width = frame.clientWidth;
-      height = frame.clientHeight;
-      canvas.width = Math.round(width * dpr);
-      canvas.height = Math.round(height * dpr);
+      canvas.width = Math.round(frame.clientWidth * dpr);
+      canvas.height = Math.round(frame.clientHeight * dpr);
+      if (canvas.width === 0 || canvas.height === 0) return;
       gl.viewport(0, 0, canvas.width, canvas.height);
 
       const scale = Math.max(canvas.width / IMG_W, canvas.height / IMG_H);
       const drawW = IMG_W * scale;
       const drawH = IMG_H * scale;
-      gl.uniform2f(uRes, canvas.width, canvas.height);
-      gl.uniform2f(uImgSize, drawW, drawH);
-      gl.uniform2f(uImgOffset, (canvas.width - drawW) / 2, (canvas.height - drawH) * OBJECT_POSITION_Y);
+      gl.uniform2f(uImgSize, drawW / canvas.width, drawH / canvas.height);
+      gl.uniform2f(
+        uImgOffset,
+        (canvas.width - drawW) / 2 / canvas.width,
+        ((canvas.height - drawH) * OBJECT_POSITION_Y) / canvas.height,
+      );
 
       const cell = Math.round(CELL_CSS_PX * dpr);
-      gl.uniform1f(uCell, cell);
+      gl.uniform2f(uCells, canvas.width / cell, canvas.height / cell);
       gl.activeTexture(gl.TEXTURE2);
       gl.bindTexture(gl.TEXTURE_2D, glyphTex);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glyphAtlas(cell));

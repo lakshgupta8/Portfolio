@@ -1,7 +1,7 @@
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useSyncExternalStore } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { EMAIL, HERO, HERO_TAGS, NAME } from '../data/portfolio';
-import { clamp, hasFinePointer, onFrame, pointer, prefersReducedMotion, smoothing } from '../lib/motion';
+import { clamp, hasFinePointer, onFrameWhileVisible, pointer, pointerActive, prefersReducedMotion, smoothing } from '../lib/motion';
 import AsciiPortrait from './AsciiPortrait';
 import HeroField from './HeroField';
 import ProximityText from './ProximityText';
@@ -26,22 +26,16 @@ function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
     const fine = hasFinePointer();
     const ambient = !prefersReducedMotion();
 
-    let visible = true;
-    const io = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-    });
-    io.observe(hero);
 
     let mx = 0;
     let my = 0;
 
-    const stop = onFrame((time, dt) => {
-      if (!visible) return;
+    const stop = onFrameWhileVisible(hero, (time, dt) => {
       const k = smoothing(0.08, dt);
       const heroRect = hero.getBoundingClientRect();
 
       const inHero =
-        pointer.movedAt > 0 &&
+        pointerActive() &&
         pointer.x >= heroRect.left &&
         pointer.x <= heroRect.right &&
         pointer.y >= heroRect.top &&
@@ -74,12 +68,37 @@ function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
 
     return () => {
       stop();
-      io.disconnect();
     };
   }, [heroRef]);
 }
 
-function NowShipping({ index }: { index: number }) {
+// One clock for the "Now shipping" line, shared by both hero layers so they
+// stay in step; only the two lists re-render when it ticks.
+const nowClock = {
+  index: 0,
+  listeners: new Set<() => void>(),
+  timer: 0,
+  subscribe(listener: () => void) {
+    nowClock.listeners.add(listener);
+    if (!nowClock.timer) {
+      nowClock.timer = window.setInterval(() => {
+        nowClock.index = (nowClock.index + 1) % HERO.now.length;
+        nowClock.listeners.forEach((l) => l());
+      }, 2600);
+    }
+    return () => {
+      nowClock.listeners.delete(listener);
+      if (nowClock.listeners.size === 0) {
+        window.clearInterval(nowClock.timer);
+        nowClock.timer = 0;
+      }
+    };
+  },
+  get: () => nowClock.index,
+};
+
+function NowShipping() {
+  const index = useSyncExternalStore(nowClock.subscribe, nowClock.get, nowClock.get);
   return (
     <div className="hero-now">
       <span className="hero-now-label">
@@ -102,7 +121,7 @@ function NowShipping({ index }: { index: number }) {
  * alternate layer (`alt`), which has the same layout so the two line up
  * exactly, but is drawn as a dark negative with the portrait in ASCII.
  */
-function HeroContent({ alt = false, nowIndex }: { alt?: boolean; nowIndex: number }) {
+function HeroContent({ alt = false }: { alt?: boolean }) {
   return (
     <div className="hero-inner">
       <div className="hero-copy" data-depth="0.12">
@@ -117,7 +136,7 @@ function HeroContent({ alt = false, nowIndex }: { alt?: boolean; nowIndex: numbe
           </h1>
         )}
         <p className="hero-lede">{HERO.lede}</p>
-        <NowShipping index={nowIndex} />
+        <NowShipping />
         <div className="hero-actions">
           <a className="btn btn-primary" href="#work" tabIndex={alt ? -1 : undefined}>
             See the work
@@ -166,6 +185,38 @@ function HeroContent({ alt = false, nowIndex }: { alt?: boolean; nowIndex: numbe
   );
 }
 
+/**
+ * The reveal layer sits on top of the real hero, so its copies of the buttons
+ * and tags would hide the real ones' :hover styles. Mirror the hover state
+ * onto the copies (as `.is-hover`) so the feedback shows in both layers.
+ */
+function useMirroredHover(
+  heroRef: React.RefObject<HTMLElement | null>,
+  altRef: React.RefObject<HTMLElement | null>,
+) {
+  useEffect(() => {
+    const hero = heroRef.current;
+    const alt = altRef.current;
+    if (!hero || !alt) return;
+    const selector = '.btn, .hero-tag';
+    const real = Array.from(hero.querySelectorAll<HTMLElement>(`:scope > .hero-inner :is(${selector})`));
+    const copies = Array.from(alt.querySelectorAll<HTMLElement>(selector));
+    const cleanups = real.map((el, i) => {
+      const copy = copies[i];
+      if (!copy) return () => {};
+      const on = () => copy.classList.add('is-hover');
+      const off = () => copy.classList.remove('is-hover');
+      el.addEventListener('pointerenter', on);
+      el.addEventListener('pointerleave', off);
+      return () => {
+        el.removeEventListener('pointerenter', on);
+        el.removeEventListener('pointerleave', off);
+      };
+    });
+    return () => cleanups.forEach((fn) => fn());
+  }, [heroRef, altRef]);
+}
+
 function HeroName() {
   return HERO.name.map((part, i) => (
     <Fragment key={part}>
@@ -182,15 +233,9 @@ function HeroName() {
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
   const altRef = useRef<HTMLDivElement>(null);
-  const [nowIndex, setNowIndex] = useState(0);
-
   useHeroMotion(heroRef);
   useHeroReveal(heroRef, altRef);
-
-  useEffect(() => {
-    const id = window.setInterval(() => setNowIndex((i) => (i + 1) % HERO.now.length), 2600);
-    return () => window.clearInterval(id);
-  }, []);
+  useMirroredHover(heroRef, altRef);
 
   return (
     <header id="top" className="hero" ref={heroRef}>
@@ -199,11 +244,11 @@ export default function Hero() {
         <div className="hero-grid-lit" />
       </div>
 
-      <HeroContent nowIndex={nowIndex} />
+      <HeroContent />
 
       <div ref={altRef} className="hero-alt" aria-hidden="true" inert>
         <div className="hero-grid" data-depth="-0.25" />
-        <HeroContent alt nowIndex={nowIndex} />
+        <HeroContent alt />
       </div>
 
       <a className="hero-scroll" href="#work" aria-label="Scroll to work">

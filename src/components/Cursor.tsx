@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { hasFinePointer, onFrame, pointer, smoothing } from '../lib/motion';
+import { hasFinePointer, onFrame, pointer, pointerActive, smoothing } from '../lib/motion';
 
 /**
  * A dot that tracks the mouse exactly and a ring that trails it. The ring grows
@@ -44,8 +44,11 @@ export default function Cursor() {
     window.addEventListener('mousedown', onDown);
     window.addEventListener('mouseup', onUp);
 
-    const stop = onFrame((_time, dt) => {
-      if (pointer.movedAt > 0 && !shown) {
+    // Runs only while the mouse moves and the ring catches up, then stops.
+    let stop: (() => void) | null = null;
+    const tick = (_time: number, dt: number) => {
+      if (!pointerActive()) return;
+      if (!shown) {
         shown = true;
         ringX = pointer.x;
         ringY = pointer.y;
@@ -56,10 +59,19 @@ export default function Cursor() {
       ringY += (pointer.y - ringY) * smoothing(0.2, dt);
       dot.style.transform = `translate3d(${pointer.x}px, ${pointer.y}px, 0)`;
       ring.style.transform = `translate3d(${ringX.toFixed(1)}px, ${ringY.toFixed(1)}px, 0)`;
-    });
+      if (Math.abs(pointer.x - ringX) < 0.1 && Math.abs(pointer.y - ringY) < 0.1) {
+        stop?.();
+        stop = null;
+      }
+    };
+    const onMove = () => {
+      if (!stop) stop = onFrame(tick);
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
 
     return () => {
-      stop();
+      stop?.();
+      window.removeEventListener('pointermove', onMove);
       document.documentElement.classList.remove('has-cursor');
       document.removeEventListener('mouseover', onOver);
       document.documentElement.removeEventListener('mouseleave', onLeave);
