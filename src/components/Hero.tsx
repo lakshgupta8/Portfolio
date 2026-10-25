@@ -3,7 +3,6 @@ import { ArrowUpRight } from 'lucide-react';
 import { EMAIL, HERO, HERO_TAGS, NAME } from '../data/portfolio';
 import { clamp, hasFinePointer, onFrame, pointer, prefersReducedMotion, smoothing } from '../lib/motion';
 import AsciiPortrait from './AsciiPortrait';
-import HeroContours from './HeroContours';
 import HeroField from './HeroField';
 import ProximityText from './ProximityText';
 import { useHeroReveal } from './useHeroReveal';
@@ -120,14 +119,13 @@ function HeroContent({ alt = false, nowIndex }: { alt?: boolean; nowIndex: numbe
         <p className="hero-lede">{HERO.lede}</p>
         <NowShipping index={nowIndex} />
         <div className="hero-actions">
-          <a className="btn btn-primary" href="#work" data-magnetic="" tabIndex={alt ? -1 : undefined}>
+          <a className="btn btn-primary" href="#work" tabIndex={alt ? -1 : undefined}>
             See the work
             <ArrowUpRight size={15} strokeWidth={2.4} aria-hidden="true" />
           </a>
           <a
             className="btn btn-secondary"
             href={`mailto:${EMAIL}`}
-            data-magnetic=""
             tabIndex={alt ? -1 : undefined}
           >
             Email me
@@ -197,12 +195,14 @@ export default function Hero() {
   return (
     <header id="top" className="hero" ref={heroRef}>
       <HeroField />
-      <HeroContours />
+      <div className="hero-grid" data-depth="-0.25" aria-hidden="true">
+        <div className="hero-grid-lit" />
+      </div>
 
       <HeroContent nowIndex={nowIndex} />
 
       <div ref={altRef} className="hero-alt" aria-hidden="true" inert>
-        <canvas className="hero-contours hero-contours-mirror" />
+        <div className="hero-grid" data-depth="-0.25" />
         <HeroContent alt nowIndex={nowIndex} />
       </div>
 
