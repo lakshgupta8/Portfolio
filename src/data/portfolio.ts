@@ -15,9 +15,10 @@ export const NAV_LINKS: { href: string; label: string }[] = [
 ];
 
 export const HERO = {
-  kicker: 'Software Engineer',
-  lines: ['I build it,', 'I test it,', 'I ship it.'],
-  lede: 'Web apps, two game engines and Android. Looking for a team where I can own a feature from design to release.',
+  kicker: 'Software engineer',
+  // The headline is the name itself, split across two lines.
+  name: ['Lakshya', 'Gupta'],
+  lede: 'I build web apps, games in Godot and Unity, and Android apps, and ship them in public. Looking for a team where I can own a feature from design to release.',
   now: [
     'MediaFlow, live on Vercel',
     'EBB, a roguelite out on Windows',

@@ -165,7 +165,6 @@ figure {
   .hero-now-dot,
   .hero-actions,
   .hero-figure,
-  .hero-ghost,
   .hero-tag,
   .hero-scroll,
   .hero-scroll-line::after {
@@ -359,40 +358,50 @@ figure {
   border-bottom: var(--rule);
 }
 
+/* Everything in the hero is sized off the viewport height so the whole hero
+   fits on the first screen without scrolling. */
+
+.hero-field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
 .hero-grid {
   position: absolute;
   inset: -80px;
+  pointer-events: none;
+}
+
+.hero-grid::before,
+.hero-grid-lit {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-size: 88px 88px;
+}
+
+.hero-grid::before {
   background-image:
     linear-gradient(to right, var(--color-neutral-300) 1px, transparent 1px),
     linear-gradient(to bottom, var(--color-neutral-300) 1px, transparent 1px);
-  background-size: 88px 88px;
   mask-image: radial-gradient(ellipse 70% 60% at 60% 45%, #000 20%, transparent 75%);
-  opacity: 0.55;
-  pointer-events: none;
+  opacity: 0.45;
 }
 
-.hero-ghost {
-  position: absolute;
-  left: -1vw;
-  bottom: -3.5vw;
-  display: flex;
-  flex-direction: column;
-  font-family: var(--font-heading);
-  font-size: 19vw;
-  font-variation-settings: 'wght' 900, 'wdth' 125;
-  line-height: 0.78;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: transparent;
-  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--color-text) 9%, transparent);
-  pointer-events: none;
-  user-select: none;
-  animation: pf-fade 1.4s 0.2s both;
-}
-
-.hero-ghost span:last-child {
-  padding-left: 18vw;
+/* a sharper grid that only shows under the moving glow */
+.hero-grid-lit {
+  background-image:
+    linear-gradient(to right, var(--color-neutral-500) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-neutral-500) 1px, transparent 1px);
+  mask-image: radial-gradient(
+    circle 240px at calc(var(--glow-x, -999px) + 80px) calc(var(--glow-y, -999px) + 80px),
+    #000,
+    transparent
+  );
+  opacity: 0.7;
 }
 
 .hero-inner {
@@ -405,7 +414,7 @@ figure {
   width: 100%;
   max-width: var(--page-max);
   margin: 0 auto;
-  padding: 56px var(--page-pad) 104px;
+  padding: clamp(20px, 4vh, 48px) var(--page-pad) clamp(64px, 10vh, 96px);
 }
 
 .hero-copy {
@@ -416,7 +425,7 @@ figure {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin: 0 0 22px;
+  margin: 0 0 clamp(12px, 2.4vh, 22px);
   font-size: 13px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -434,10 +443,10 @@ figure {
 .hero-title {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: clamp(52px, 8.2vw, 128px);
+  font-size: clamp(56px, min(11vw, 17vh), 176px);
   font-weight: 700;
-  line-height: 0.94;
-  letter-spacing: -0.025em;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
   text-transform: uppercase;
 }
 
@@ -465,9 +474,9 @@ figure {
 }
 
 .hero-lede {
-  max-width: 470px;
-  margin: 30px 0 0;
-  font-size: 18px;
+  max-width: 500px;
+  margin: clamp(16px, 3.4vh, 30px) 0 0;
+  font-size: 17px;
   line-height: 1.6;
   color: var(--color-neutral-700);
   animation: pf-fade 0.8s 0.7s both;
@@ -478,8 +487,8 @@ figure {
   align-items: center;
   gap: 14px;
   max-width: 520px;
-  margin-top: 22px;
-  padding: 12px 0;
+  margin-top: clamp(12px, 2.4vh, 22px);
+  padding: 10px 0;
   border-top: 1px solid var(--color-neutral-300);
   border-bottom: 1px solid var(--color-neutral-300);
   animation: pf-fade 0.8s 0.8s both;
@@ -539,7 +548,7 @@ figure {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 30px;
+  margin-top: clamp(16px, 3.4vh, 30px);
   animation: pf-fade 0.8s 0.9s both;
 }
 
@@ -555,7 +564,7 @@ figure {
 }
 
 .hero-figure-wrap {
-  width: min(100%, 380px);
+  width: min(100%, 380px, calc((100svh - 64px) * 0.5));
 }
 
 .hero-figure {
@@ -1405,10 +1414,6 @@ html.has-cursor * {
     --page-pad: 24px;
   }
 
-  .hero {
-    min-height: 0;
-  }
-
   .hero-inner {
     grid-template-columns: minmax(0, 1fr) minmax(0, 240px);
     gap: 28px;
@@ -1480,41 +1485,82 @@ html.has-cursor * {
 }
 
 @media (max-width: 640px) {
-  .hero {
-    min-height: 0;
-  }
-
   .hero-inner {
     grid-template-columns: 1fr;
-    gap: 48px;
-    padding-top: 40px;
-    padding-bottom: 96px;
+    gap: clamp(14px, 2.6vh, 26px);
+    padding-top: clamp(14px, 2.6vh, 28px);
+    padding-bottom: clamp(18px, 3vh, 32px);
+  }
+
+  .hero-stage {
+    order: -1;
+    justify-items: start;
   }
 
   .hero-title {
-    font-size: clamp(44px, 13vw, 72px);
+    font-size: clamp(44px, min(16vw, 8.5vh), 84px);
   }
 
-  .hero-ghost {
-    font-size: 30vw;
-    bottom: auto;
-    top: 46%;
+  .hero-lede {
+    font-size: 15px;
   }
 
   .hero-figure-wrap {
-    width: min(78%, 320px);
+    --photo-w: min(40vw, 200px, calc((100svh - 64px) * 0.22));
+    width: var(--photo-w);
+  }
+
+  .hero-figure {
+    box-shadow: 8px 8px 0 var(--color-text);
+  }
+
+  .hero-figure figcaption {
+    display: none;
+  }
+
+  .hero-tag-tl,
+  .hero-tag-mr {
+    left: calc(min(40vw, 200px, (100svh - 64px) * 0.22) + 24px);
+    right: auto;
   }
 
   .hero-tag-tl {
-    left: 0;
+    top: 18%;
   }
 
   .hero-tag-mr {
-    right: 0;
+    top: 52%;
   }
 
-  .hero-tag-bl {
-    left: 0;
+  .hero-tag-bl,
+  .hero-scroll {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) and (max-height: 720px) {
+  .hero-now {
+    display: none;
+  }
+
+  .hero-lede {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 400px) {
+  .nav {
+    gap: 12px;
+  }
+
+  .nav-brand {
+    font-size: 12px;
+  }
+
+  .nav-links {
+    gap: 9px;
+    font-size: 10px;
+    letter-spacing: 0.04em;
   }
 }
 

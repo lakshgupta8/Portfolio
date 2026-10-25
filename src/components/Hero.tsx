@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { EMAIL, HERO, HERO_TAGS, NAME } from '../data/portfolio';
 import { clamp, hasFinePointer, onFrame, pointer, prefersReducedMotion, smoothing } from '../lib/motion';
+import HeroField from './HeroField';
 import ProximityText from './ProximityText';
 
 const IDLE_AFTER_MS = 2200;
@@ -15,7 +16,6 @@ function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
     const layers = Array.from(hero.querySelectorAll<HTMLElement>('[data-depth]')).map((el) => ({
       el,
       depth: Number(el.dataset.depth),
-      slide: Number(el.dataset.slide ?? 0),
     }));
     const figure = hero.querySelector<HTMLElement>('.hero-figure');
     const frame = hero.querySelector<HTMLElement>('.hero-photo-frame');
@@ -58,8 +58,8 @@ function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
 
       const progress = clamp(-heroRect.top / heroRect.height, 0, 1);
 
-      layers.forEach(({ el, depth, slide }) => {
-        const x = mx * depth * LAYER_TRAVEL + slide * progress * 240;
+      layers.forEach(({ el, depth }) => {
+        const x = mx * depth * LAYER_TRAVEL;
         const y = my * depth * LAYER_TRAVEL - progress * depth * 90;
         el.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0)`;
       });
@@ -139,22 +139,24 @@ export default function Hero() {
 
   return (
     <header id="top" className="hero" ref={heroRef}>
-      <div className="hero-grid" data-depth="-0.25" aria-hidden="true" />
-      <div className="hero-ghost" data-depth="-0.7" data-slide="-1" aria-hidden="true">
-        <span>Lakshya</span>
-        <span>Gupta</span>
+      <HeroField />
+      <div className="hero-grid" data-depth="-0.25" aria-hidden="true">
+        <div className="hero-grid-lit" />
       </div>
 
       <div className="hero-inner">
         <div className="hero-copy" data-depth="0.12">
           <p className="hero-kicker">{HERO.kicker}</p>
           <h1 className="hero-title">
-            {HERO.lines.map((line) => (
-              <span key={line} className="hero-line">
-                <span>
-                  <ProximityText text={line} />
+            {HERO.name.map((part, i) => (
+              <Fragment key={part}>
+                {i > 0 && ' '}
+                <span className="hero-line">
+                  <span>
+                    <ProximityText text={part} radius={220} />
+                  </span>
                 </span>
-              </span>
+              </Fragment>
             ))}
           </h1>
           <p className="hero-lede">{HERO.lede}</p>
