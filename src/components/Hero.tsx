@@ -26,6 +26,17 @@ function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
     const fine = hasFinePointer();
     const ambient = !prefersReducedMotion();
 
+    // Phones: lean the layers with the device's tilt where the browser gives it
+    // freely (Android). iOS asks permission for this, so it falls back to drift.
+    const tilt = { x: 0, y: 0, seen: false };
+    const onTilt = (event: DeviceOrientationEvent) => {
+      if (event.gamma === null || event.beta === null) return;
+      tilt.seen = true;
+      tilt.x = clamp(event.gamma / 25, -1, 1);
+      tilt.y = clamp((event.beta - 50) / 25, -1, 1);
+    };
+    if (!fine && ambient) window.addEventListener('deviceorientation', onTilt);
+
 
     let mx = 0;
     let my = 0;
@@ -40,13 +51,16 @@ function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
         pointer.x <= heroRect.right &&
         pointer.y >= heroRect.top &&
         pointer.y <= heroRect.bottom;
-      const live = fine && inHero;
+      const live = inHero && pointer.kind === 'mouse';
 
       let tx = 0;
       let ty = 0;
       if (live) {
         tx = clamp(((pointer.x - heroRect.left) / heroRect.width) * 2 - 1, -1, 1);
         ty = clamp(((pointer.y - heroRect.top) / heroRect.height) * 2 - 1, -1, 1);
+      } else if (tilt.seen) {
+        tx = tilt.x;
+        ty = tilt.y;
       } else if (ambient) {
         tx = Math.sin(time * 0.00042) * 0.55;
         ty = Math.sin(time * 0.00057 + 1.3) * 0.45;
@@ -68,6 +82,7 @@ function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
 
     return () => {
       stop();
+      window.removeEventListener('deviceorientation', onTilt);
     };
   }, [heroRef]);
 }

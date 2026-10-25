@@ -47,7 +47,7 @@ export default function Cursor() {
     // Runs only while the mouse moves and the ring catches up, then stops.
     let stop: (() => void) | null = null;
     const tick = (_time: number, dt: number) => {
-      if (!pointerActive()) return;
+      if (!pointerActive() || pointer.kind !== 'mouse') return;
       if (!shown) {
         shown = true;
         ringX = pointer.x;

@@ -1693,3 +1693,254 @@ html.has-cursor * {
     font-size: 30px;
   }
 }
+
+/* ── phones: menu, swipe carousels, touch states ───────────────────────── */
+
+.nav-toggle,
+.carousel-status {
+  display: none;
+}
+
+.nav-menu[hidden] {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .nav-links {
+    display: none;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border: 0;
+    background: none;
+    color: var(--color-text);
+    font: 700 12px/1 var(--font-heading);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .nav-toggle-icon {
+    position: relative;
+    width: 20px;
+    height: 10px;
+  }
+
+  .nav-toggle-icon::before,
+  .nav-toggle-icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    transition: transform 0.3s, top 0.3s;
+  }
+
+  .nav-toggle-icon::before {
+    top: 0;
+  }
+
+  .nav-toggle-icon::after {
+    top: 8px;
+  }
+
+  .nav-toggle[aria-expanded='true'] .nav-toggle-icon::before {
+    top: 4px;
+    transform: rotate(45deg);
+  }
+
+  .nav-toggle[aria-expanded='true'] .nav-toggle-icon::after {
+    top: 4px;
+    transform: rotate(-45deg);
+  }
+
+  .nav-menu {
+    --color-bg: #201e1d;
+    --color-text: #f3f2f2;
+    position: fixed;
+    inset: 64px 0 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 24px var(--page-pad) calc(28px + env(safe-area-inset-bottom));
+    background: var(--color-bg);
+    color: var(--color-text);
+    animation: pf-menu 0.45s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+  }
+
+  .nav-menu-links {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav-menu-links li {
+    overflow: hidden;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+  }
+
+  .nav-menu-links a {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 12px 0 10px;
+    color: inherit;
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-size: clamp(40px, 14vw, 72px);
+    font-weight: 700;
+    line-height: 1;
+    text-transform: uppercase;
+    animation: pf-rise 0.6s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+    animation-delay: calc(0.08s + var(--i) * 0.06s);
+  }
+
+  .nav-menu-num {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    opacity: 0.5;
+  }
+
+  .nav-menu-mail {
+    color: inherit;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    text-underline-offset: 4px;
+    overflow-wrap: anywhere;
+  }
+
+  html.menu-open {
+    overflow: hidden;
+  }
+
+  /* Projects and stack become horizontal swipe carousels. */
+  .projects-grid,
+  .tiles-grid {
+    display: flex;
+    gap: 12px;
+    margin: 0 calc(var(--page-pad) * -1);
+    padding: 0 var(--page-pad) 4px;
+    border: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 var(--page-pad);
+    scrollbar-width: none;
+  }
+
+  .projects-grid::-webkit-scrollbar,
+  .tiles-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .projects-grid > .cell,
+  .tiles-grid > .cell {
+    flex: 0 0 86%;
+    border: var(--rule);
+    scroll-snap-align: start;
+  }
+
+  /* keep the big featured cards close in height to the rest */
+  .featured-list li:nth-child(n + 4) {
+    display: none;
+  }
+
+  .featured-title {
+    font-size: 34px;
+  }
+
+  /* The card in the middle of the carousel gets the hover treatment. */
+  .projects-grid > .is-active {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  .projects-grid > .is-active::after {
+    opacity: 1;
+  }
+
+  .tiles-grid > .is-active {
+    background: var(--color-neutral-100);
+  }
+
+  .carousel-status {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .carousel-count {
+    flex: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .carousel-bar {
+    position: relative;
+    flex: 1;
+    height: 2px;
+    background: var(--color-neutral-300);
+  }
+
+  .carousel-bar span {
+    position: absolute;
+    inset: 0;
+    background: var(--color-text);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .carousel-hint {
+    flex: none;
+    color: var(--color-neutral-600);
+  }
+
+  .carousel-hint::after {
+    content: ' →';
+  }
+}
+
+/* Touch screens have no real hover; a tap shouldn't leave a card stuck dark. */
+@media (hover: none) {
+  .project:hover,
+  .featured:hover {
+    background: transparent;
+    color: inherit;
+  }
+
+  .project:hover::after,
+  .featured:hover::after {
+    opacity: 0;
+  }
+
+  .projects-grid > .is-active:hover {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+}
+
+@keyframes pf-menu {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-menu,
+  .nav-menu-links a {
+    animation: none;
+  }
+}

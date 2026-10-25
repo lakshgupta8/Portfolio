@@ -1,6 +1,8 @@
-import type { PointerEvent } from 'react';
+import { useRef, type PointerEvent } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { FEATURED, GITHUB_URL, MORE_PROJECTS, PROJECTS, slugify, type Project } from '../data/portfolio';
+import { useCarousel } from '../hooks/useCarousel';
+import CarouselStatus from './CarouselStatus';
 
 // Moves the glow in whichever card the pointer is over.
 function trackSpotlight(event: PointerEvent<HTMLDivElement>) {
@@ -40,6 +42,10 @@ function Meta({ project }: { project: Project }) {
 }
 
 export default function Work() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
+  useCarousel(trackRef, statusRef);
+
   return (
     <section id="work" className="section">
       <div className="container">
@@ -51,7 +57,7 @@ export default function Work() {
           </p>
         </div>
 
-        <div className="cell-grid projects-grid" onPointerMove={trackSpotlight}>
+        <div ref={trackRef} className="cell-grid projects-grid" onPointerMove={trackSpotlight}>
           {FEATURED.map((project) => (
             <article key={project.num} id={slugify(project.title)} className="cell featured" data-reveal="">
               <Meta project={project} />
@@ -77,6 +83,7 @@ export default function Work() {
             </article>
           ))}
         </div>
+        <CarouselStatus ref={statusRef} total={FEATURED.length + PROJECTS.length} />
 
         <p className="projects-note" data-reveal="">
           Also built:{' '}

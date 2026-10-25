@@ -55,11 +55,16 @@ export const pointer = {
   y: 0,
   /** performance.now() of the last real mouse movement, or -Infinity if none yet */
   movedAt: -Infinity,
-  /** whether the mouse is currently over the page */
+  /** whether the mouse is over the page, or a finger is on the screen */
   inside: false,
+  /** what last moved the pointer */
+  kind: 'none' as 'none' | 'mouse' | 'touch',
 };
 
-/** True when a real mouse has moved and is still over the page. */
+/**
+ * True when a mouse has moved and is still over the page, or a finger is
+ * currently on the screen (including while it scrolls the page).
+ */
 export const pointerActive = () => pointer.inside && pointer.movedAt > 0;
 
 if (typeof window !== 'undefined') {
@@ -71,9 +76,29 @@ if (typeof window !== 'undefined') {
       pointer.y = event.clientY;
       pointer.movedAt = performance.now();
       pointer.inside = true;
+      pointer.kind = 'mouse';
     },
     { passive: true },
   );
+
+  // Touch: follow the finger, including while it scrolls the page (pointer
+  // events stop once the browser takes over scrolling; touch events don't).
+  const onTouch = (event: TouchEvent) => {
+    const touch = event.touches[0];
+    if (!touch) return;
+    pointer.x = touch.clientX;
+    pointer.y = touch.clientY;
+    pointer.movedAt = performance.now();
+    pointer.inside = true;
+    pointer.kind = 'touch';
+  };
+  const onTouchEnd = (event: TouchEvent) => {
+    if (event.touches.length === 0) pointer.inside = false;
+  };
+  window.addEventListener('touchstart', onTouch, { passive: true });
+  window.addEventListener('touchmove', onTouch, { passive: true });
+  window.addEventListener('touchend', onTouchEnd, { passive: true });
+  window.addEventListener('touchcancel', onTouchEnd, { passive: true });
   document.documentElement.addEventListener('mouseleave', () => {
     pointer.inside = false;
   });

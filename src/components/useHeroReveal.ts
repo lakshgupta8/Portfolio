@@ -7,6 +7,8 @@ const LIFE_MS = 650; // how long a trail blob takes to melt away
 const MAX_BLOBS = 90;
 const SPACING = 12; // px between blobs laid along the cursor path
 const HOVER_RADIUS = 24; // the blob that sits under a resting cursor
+const INTRO_DELAY_MS = 1100; // touch screens: when the one-off sweep starts
+const INTRO_MS = 1600; // and how long it takes
 
 interface Blob {
   x: number;
@@ -58,6 +60,7 @@ export function useHeroReveal(
     let last: { x: number; y: number } | null = null;
     let lastTime = 0;
     let empty = true;
+    const introStart = performance.now() + INTRO_DELAY_MS;
 
     const resize = () => {
       cols = Math.ceil(hero.clientWidth / STEP) + 1;
@@ -95,21 +98,27 @@ export function useHeroReveal(
       const rect = hero.getBoundingClientRect();
       const inside =
         pointer.x >= rect.left && pointer.x <= rect.right && pointer.y >= rect.top && pointer.y <= rect.bottom;
-      // The trail grows only with movement (see lay); the hover blob stays while
-      // the cursor rests anywhere in the hero.
-      const live = fine && inside && pointerActive();
+      // A mouse or a finger paints the trail as it moves (see lay). A resting
+      // mouse keeps a small blob under it; a lifted finger leaves nothing.
+      const live = inside && pointerActive();
       let hover: { x: number; y: number } | null = null;
+      const introAt = time - introStart;
 
       if (live) {
         const x = pointer.x - rect.left;
         const y = pointer.y - rect.top;
         lay(x, y, time);
-        hover = { x, y };
-      } else if (!fine && ambient) {
-        // Touch screens: a slow path pours the other layer across the hero.
-        const x = rect.width * (0.5 + 0.38 * Math.sin(time * 0.00041) + 0.08 * Math.sin(time * 0.0013));
-        const y = rect.height * (0.5 + 0.32 * Math.sin(time * 0.00057 + 1.4));
-        lay(x, y, time);
+        if (pointer.kind === 'mouse') hover = { x, y };
+      } else if (!fine && ambient && introAt > 0 && introAt < INTRO_MS) {
+        // Touch screens: one sweep across the name on load, to show the hero
+        // reacts to a finger.
+        const title = hero.querySelector('.hero > .hero-inner .hero-title')?.getBoundingClientRect();
+        if (title) {
+          const u = introAt / INTRO_MS;
+          const x = title.left - rect.left + u * title.width;
+          const y = title.top - rect.top + title.height * (0.5 + 0.3 * Math.sin(u * Math.PI * 2));
+          lay(x, y, time);
+        }
       } else {
         last = null;
       }

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { hasFinePointer, onFrameWhileVisible, pointer, pointerActive, prefersReducedMotion, smoothing } from '../lib/motion';
+import { onFrameWhileVisible, pointer, pointerActive, prefersReducedMotion, smoothing } from '../lib/motion';
 
 const SCALE = 0.5; // the canvas renders at half size; the blobs are soft anyway
 const IDLE_AFTER_MS = 2200;
@@ -29,7 +29,6 @@ export default function HeroField() {
     const ctx = canvas?.getContext('2d');
     if (!canvas || !hero || !ctx) return;
 
-    const fine = hasFinePointer();
     const ambient = !prefersReducedMotion();
     let width = 0;
     let height = 0;
@@ -53,7 +52,6 @@ export default function HeroField() {
       if (width === 0) return;
       const rect = hero.getBoundingClientRect();
       const live =
-        fine &&
         pointerActive() &&
         (time - pointer.movedAt < IDLE_AFTER_MS || !ambient) &&
         pointer.x >= rect.left &&

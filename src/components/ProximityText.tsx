@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef } from 'react';
-import { clamp, hasFinePointer, onFrame, pointer, pointerActive, scroll, smoothing } from '../lib/motion';
+import { clamp, onFrame, pointer, pointerActive, scroll, smoothing } from '../lib/motion';
 
 interface Props {
   text: string;
@@ -71,6 +71,9 @@ function wake() {
 if (typeof window !== 'undefined') {
   window.addEventListener('pointermove', wake, { passive: true });
   window.addEventListener('scroll', wake, { passive: true });
+  window.addEventListener('touchstart', wake, { passive: true });
+  window.addEventListener('touchmove', wake, { passive: true });
+  window.addEventListener('touchend', wake, { passive: true });
   document.documentElement.addEventListener('mouseleave', wake);
 }
 
@@ -84,7 +87,7 @@ export default function ProximityText({ text, radius = 180, className }: Props) 
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!root || !hasFinePointer()) return;
+    if (!root) return;
 
     const letters = Array.from(root.querySelectorAll<HTMLSpanElement>('.px-letter'));
     const inst: Instance = { letters, strength: letters.map(() => 0), radius, visible: false };
