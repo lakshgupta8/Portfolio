@@ -3,6 +3,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { EMAIL, HERO, HERO_TAGS, NAME } from '../data/portfolio';
 import { clamp, hasFinePointer, onFrame, pointer, prefersReducedMotion, smoothing } from '../lib/motion';
 import HeroField from './HeroField';
+import PortraitReveal from './PortraitReveal';
 import ProximityText from './ProximityText';
 
 const IDLE_AFTER_MS = 2200;
@@ -18,7 +19,6 @@ function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
       depth: Number(el.dataset.depth),
     }));
     const figure = hero.querySelector<HTMLElement>('.hero-figure');
-    const frame = hero.querySelector<HTMLElement>('.hero-photo-frame');
     const fine = hasFinePointer();
 
     let visible = true;
@@ -29,15 +29,11 @@ function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
 
     let mx = 0;
     let my = 0;
-    let lensX = 0.5;
-    let lensY = 0.35;
-    let lensR = 0;
 
     const stop = onFrame((time, dt) => {
       if (!visible) return;
       const k = smoothing(0.08, dt);
       const heroRect = hero.getBoundingClientRect();
-      const figRect = frame?.getBoundingClientRect();
 
       const inHero =
         pointer.x >= heroRect.left &&
@@ -65,40 +61,9 @@ function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
       });
       hero.style.setProperty('--hero-progress', progress.toFixed(3));
 
-      if (!figure || !frame || !figRect) return;
+      if (!figure) return;
       figure.style.setProperty('--tilt-x', `${(-my * 7).toFixed(2)}deg`);
       figure.style.setProperty('--tilt-y', `${(mx * 9).toFixed(2)}deg`);
-
-      // The colour lens: follows the cursor over the photo, wanders when idle.
-      const overFigure =
-        live &&
-        pointer.x > figRect.left - 40 &&
-        pointer.x < figRect.right + 40 &&
-        pointer.y > figRect.top - 40 &&
-        pointer.y < figRect.bottom + 40;
-      let targetX: number;
-      let targetY: number;
-      let targetR: number;
-      if (overFigure) {
-        targetX = (pointer.x - figRect.left) / figRect.width;
-        targetY = (pointer.y - figRect.top) / figRect.height;
-        targetR = 0.34;
-      } else if (live) {
-        targetX = lensX;
-        targetY = lensY;
-        targetR = 0;
-      } else {
-        targetX = 0.5 + Math.sin(time * 0.0006) * 0.22;
-        targetY = 0.36 + Math.sin(time * 0.00083 + 0.7) * 0.14;
-        targetR = 0.2;
-      }
-      const lk = smoothing(0.16, dt);
-      lensX += (targetX - lensX) * lk;
-      lensY += (targetY - lensY) * lk;
-      lensR += (targetR - lensR) * smoothing(0.1, dt);
-      frame.style.setProperty('--lens-x', `${(lensX * 100).toFixed(2)}%`);
-      frame.style.setProperty('--lens-y', `${(lensY * 100).toFixed(2)}%`);
-      frame.style.setProperty('--lens-r', `${(lensR * figRect.width).toFixed(1)}px`);
     });
 
     return () => {
@@ -177,15 +142,7 @@ export default function Hero() {
             <figure className="hero-figure" data-cursor="Look">
               <div className="hero-photo-frame">
                 <img className="hero-photo" src="/lakshya.png" alt={NAME} width={1024} height={1536} />
-                <img
-                  className="hero-photo hero-photo-color"
-                  src="/lakshya.png"
-                  alt=""
-                  aria-hidden="true"
-                  width={1024}
-                  height={1536}
-                />
-                <span className="hero-lens" aria-hidden="true" />
+                <PortraitReveal />
               </div>
               <figcaption>{HERO.caption}</figcaption>
             </figure>

@@ -592,23 +592,11 @@ figure {
   filter: grayscale(1) contrast(1.08);
 }
 
-.hero-photo-color {
+.hero-reveal {
   position: absolute;
   inset: 0;
-  filter: none;
-  clip-path: circle(var(--lens-r, 0px) at var(--lens-x, 50%) var(--lens-y, 35%));
-}
-
-.hero-lens {
-  position: absolute;
-  left: var(--lens-x, 50%);
-  top: var(--lens-y, 35%);
-  width: calc(var(--lens-r, 0px) * 2);
-  height: calc(var(--lens-r, 0px) * 2);
-  border: 1.5px solid #fff;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  mix-blend-mode: difference;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
 
