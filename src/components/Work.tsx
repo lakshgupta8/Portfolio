@@ -1,5 +1,17 @@
+import { useRef, type PointerEvent } from 'react';
 import { ArrowUpRight } from 'lucide-react';
-import { FEATURED, GITHUB_URL, MORE_PROJECTS, PROJECTS, type Project } from '../data/portfolio';
+import { FEATURED, GITHUB_URL, MORE_PROJECTS, PROJECTS, slugify, type Project } from '../data/portfolio';
+import { useCarousel } from '../hooks/useCarousel';
+import CarouselStatus from './CarouselStatus';
+
+// Moves the glow in whichever card the pointer is over.
+function trackSpotlight(event: PointerEvent<HTMLDivElement>) {
+  const card = (event.target as Element).closest<HTMLElement>('.project, .featured');
+  if (!card) return;
+  const rect = card.getBoundingClientRect();
+  card.style.setProperty('--spot-x', `${event.clientX - rect.left}px`);
+  card.style.setProperty('--spot-y', `${event.clientY - rect.top}px`);
+}
 
 function Links({ project }: { project: Project }) {
   return (
@@ -30,6 +42,10 @@ function Meta({ project }: { project: Project }) {
 }
 
 export default function Work() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
+  useCarousel(trackRef, statusRef);
+
   return (
     <section id="work" className="section">
       <div className="container">
@@ -41,9 +57,9 @@ export default function Work() {
           </p>
         </div>
 
-        <div className="cell-grid projects-grid">
+        <div ref={trackRef} className="cell-grid projects-grid" onPointerMove={trackSpotlight}>
           {FEATURED.map((project) => (
-            <article key={project.num} className="cell featured" data-reveal="">
+            <article key={project.num} id={slugify(project.title)} className="cell featured" data-reveal="">
               <Meta project={project} />
               <h3 className="featured-title">{project.title}</h3>
               <p className="featured-desc">{project.desc}</p>
@@ -58,7 +74,7 @@ export default function Work() {
           ))}
 
           {PROJECTS.map((project) => (
-            <article key={project.num} className="cell project" data-reveal="">
+            <article key={project.num} id={slugify(project.title)} className="cell project" data-reveal="">
               <Meta project={project} />
               <h3 className="project-title">{project.title}</h3>
               <p className="project-desc">{project.desc}</p>
@@ -67,6 +83,7 @@ export default function Work() {
             </article>
           ))}
         </div>
+        <CarouselStatus ref={statusRef} total={FEATURED.length + PROJECTS.length} />
 
         <p className="projects-note" data-reveal="">
           Also built:{' '}

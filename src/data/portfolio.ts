@@ -15,14 +15,30 @@ export const NAV_LINKS: { href: string; label: string }[] = [
 ];
 
 export const HERO = {
-  kicker: 'Software Engineer',
-  lines: ['I build it,', 'I test it,'],
-  lastLine: '',
-  lastLineAccent: 'I ship it.',
-  lede:
-    "I'm Lakshya, a software engineer who learns by finishing things: a Next.js guide to where any film or series is streaming, a Godot roguelite with a Windows installer, a Unity metroidvania with CI behind it, and a Flutter habit tracker for Android. I'm looking for a team where I can own a feature from design to release.",
+  kicker: 'Software engineer',
+  // The headline is the name itself, split across two lines.
+  name: ['Lakshya', 'Gupta'],
+  lede: 'I build web apps, games in Godot and Unity, and Android apps, and ship them in public. Looking for a team where I can own a feature from design to release.',
+  now: [
+    'MediaFlow, live on Vercel',
+    'EBB, a roguelite out on Windows',
+    'Manasbal, a marketplace built as a team',
+    'The Last Cartographer, in Unity 6',
+    'Habitual Offender, an APK on Android',
+  ],
   caption: 'Lakshya Gupta — software engineer',
 };
+
+// Floating project tags around the hero portrait. `depth` sets how far each one
+// drifts with the cursor; `slot` places it around the photo.
+export const HERO_TAGS: { label: string; kind: string; href: string; depth: number; slot: string }[] = [
+  { label: 'MediaFlow', kind: 'Next.js', href: '#mediaflow', depth: 0.9, slot: 'tl' },
+  { label: 'EBB', kind: 'Godot', href: '#ebb', depth: 1.3, slot: 'mr' },
+  { label: 'Manasbal', kind: 'Team', href: '#manasbal', depth: 0.6, slot: 'bl' },
+  { label: 'Last Cartographer', kind: 'Unity', href: '#the-last-cartographer', depth: 1.1, slot: 'br' },
+];
+
+export const slugify = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
 export const MARQUEE = [
   'TypeScript',

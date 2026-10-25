@@ -1,6 +1,13 @@
+import { useRef } from 'react';
 import { STACK } from '../data/portfolio';
+import { useCarousel } from '../hooks/useCarousel';
+import CarouselStatus from './CarouselStatus';
 
 export default function Stack() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
+  useCarousel(trackRef, statusRef);
+
   return (
     <section id="stack" className="section">
       <div className="container">
@@ -10,7 +17,7 @@ export default function Stack() {
             Everything here is used in at least one public repository. Nothing is aspirational.
           </p>
         </div>
-        <div className="cell-grid tiles-grid">
+        <div ref={trackRef} className="cell-grid tiles-grid">
           {STACK.map((group) => (
             <div key={group.num} className="cell tile" data-reveal="">
               <div className="tile-meta">
@@ -29,6 +36,7 @@ export default function Stack() {
             </div>
           ))}
         </div>
+        <CarouselStatus ref={statusRef} total={STACK.length} />
       </div>
     </section>
   );
