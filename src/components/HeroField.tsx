@@ -17,7 +17,8 @@ const BLOBS = [
 /**
  * A soft ink glow that follows the cursor through the hero with a little
  * randomness in how it flows, and lights up a sharper grid underneath it.
- * When the mouse is still (or on touch) the glow wanders on its own.
+ * When the mouse is still (or on touch) the glow wanders on its own, unless
+ * the visitor prefers reduced motion.
  */
 export default function HeroField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -26,9 +27,10 @@ export default function HeroField() {
     const canvas = canvasRef.current;
     const hero = canvas?.parentElement;
     const ctx = canvas?.getContext('2d');
-    if (!canvas || !hero || !ctx || prefersReducedMotion()) return;
+    if (!canvas || !hero || !ctx) return;
 
     const fine = hasFinePointer();
+    const ambient = !prefersReducedMotion();
     let width = 0;
     let height = 0;
     const resize = () => {
@@ -57,18 +59,21 @@ export default function HeroField() {
       const rect = hero.getBoundingClientRect();
       const live =
         fine &&
-        time - pointer.movedAt < IDLE_AFTER_MS &&
+        (time - pointer.movedAt < IDLE_AFTER_MS || !ambient) &&
         pointer.x >= rect.left &&
         pointer.x <= rect.right &&
         pointer.y >= rect.top &&
         pointer.y <= rect.bottom;
 
-      const tx = live
-        ? pointer.x - rect.left
-        : width * (0.55 + 0.3 * Math.sin(time * 0.00023) + 0.1 * Math.sin(time * 0.00061 + 2));
-      const ty = live
-        ? pointer.y - rect.top
-        : height * (0.48 + 0.26 * Math.sin(time * 0.00031 + 1) + 0.08 * Math.sin(time * 0.00073));
+      let tx = lead.x;
+      let ty = lead.y;
+      if (live) {
+        tx = pointer.x - rect.left;
+        ty = pointer.y - rect.top;
+      } else if (ambient) {
+        tx = width * (0.55 + 0.3 * Math.sin(time * 0.00023) + 0.1 * Math.sin(time * 0.00061 + 2));
+        ty = height * (0.48 + 0.26 * Math.sin(time * 0.00031 + 1) + 0.08 * Math.sin(time * 0.00073));
+      }
 
       const step = dt / 16.67;
       lead.vx = (lead.vx + (tx - lead.x) * 0.045 * step) * Math.pow(0.84, step);

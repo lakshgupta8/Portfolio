@@ -2,24 +2,29 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { EMAIL, HERO, HERO_TAGS, NAME } from '../data/portfolio';
 import { clamp, hasFinePointer, onFrame, pointer, prefersReducedMotion, smoothing } from '../lib/motion';
+import AsciiPortrait from './AsciiPortrait';
 import HeroField from './HeroField';
-import PortraitReveal from './PortraitReveal';
 import ProximityText from './ProximityText';
+import { useHeroReveal } from './useHeroReveal';
 
-const IDLE_AFTER_MS = 2200;
 const LAYER_TRAVEL = 34;
 
+/**
+ * Moves every `[data-depth]` element in the hero with the cursor (both layers,
+ * so they stay aligned) and tilts the portrait. Cursor-driven motion runs for
+ * everyone; the idle drift without a cursor is skipped for reduced-motion users.
+ */
 function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
     const hero = heroRef.current;
-    if (!hero || prefersReducedMotion()) return;
+    if (!hero) return;
 
     const layers = Array.from(hero.querySelectorAll<HTMLElement>('[data-depth]')).map((el) => ({
       el,
       depth: Number(el.dataset.depth),
     }));
-    const figure = hero.querySelector<HTMLElement>('.hero-figure');
     const fine = hasFinePointer();
+    const ambient = !prefersReducedMotion();
 
     let visible = true;
     const io = new IntersectionObserver(([entry]) => {
@@ -36,19 +41,22 @@ function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
       const heroRect = hero.getBoundingClientRect();
 
       const inHero =
+        pointer.movedAt > 0 &&
         pointer.x >= heroRect.left &&
         pointer.x <= heroRect.right &&
         pointer.y >= heroRect.top &&
         pointer.y <= heroRect.bottom;
-      const live = fine && inHero && time - pointer.movedAt < IDLE_AFTER_MS;
+      const live = fine && inHero;
 
-      // Cursor drives the scene; without one, the scene drifts on its own.
-      const tx = live
-        ? clamp(((pointer.x - heroRect.left) / heroRect.width) * 2 - 1, -1, 1)
-        : Math.sin(time * 0.00042) * 0.55;
-      const ty = live
-        ? clamp(((pointer.y - heroRect.top) / heroRect.height) * 2 - 1, -1, 1)
-        : Math.sin(time * 0.00057 + 1.3) * 0.45;
+      let tx = 0;
+      let ty = 0;
+      if (live) {
+        tx = clamp(((pointer.x - heroRect.left) / heroRect.width) * 2 - 1, -1, 1);
+        ty = clamp(((pointer.y - heroRect.top) / heroRect.height) * 2 - 1, -1, 1);
+      } else if (ambient) {
+        tx = Math.sin(time * 0.00042) * 0.55;
+        ty = Math.sin(time * 0.00057 + 1.3) * 0.45;
+      }
       mx += (tx - mx) * k;
       my += (ty - my) * k;
 
@@ -60,10 +68,8 @@ function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
         el.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0)`;
       });
       hero.style.setProperty('--hero-progress', progress.toFixed(3));
-
-      if (!figure) return;
-      figure.style.setProperty('--tilt-x', `${(-my * 7).toFixed(2)}deg`);
-      figure.style.setProperty('--tilt-y', `${(mx * 9).toFixed(2)}deg`);
+      hero.style.setProperty('--tilt-x', `${(-my * 7).toFixed(2)}deg`);
+      hero.style.setProperty('--tilt-y', `${(mx * 9).toFixed(2)}deg`);
     });
 
     return () => {
@@ -73,14 +79,7 @@ function useHeroMotion(heroRef: React.RefObject<HTMLElement | null>) {
   }, [heroRef]);
 }
 
-function NowShipping() {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const id = window.setInterval(() => setIndex((i) => (i + 1) % HERO.now.length), 2600);
-    return () => window.clearInterval(id);
-  }, []);
-
+function NowShipping({ index }: { index: number }) {
   return (
     <div className="hero-now">
       <span className="hero-now-label">
@@ -98,9 +97,101 @@ function NowShipping() {
   );
 }
 
+/**
+ * The hero's content. Rendered twice: once normally, and once as the
+ * alternate layer (`alt`), which has the same layout so the two line up
+ * exactly, but is drawn as a dark negative with the portrait in ASCII.
+ */
+function HeroContent({ alt = false, nowIndex }: { alt?: boolean; nowIndex: number }) {
+  return (
+    <div className="hero-inner">
+      <div className="hero-copy" data-depth="0.12">
+        <p className="hero-kicker">{HERO.kicker}</p>
+        {alt ? (
+          <p className="hero-title" role="presentation">
+            <HeroName />
+          </p>
+        ) : (
+          <h1 className="hero-title">
+            <HeroName />
+          </h1>
+        )}
+        <p className="hero-lede">{HERO.lede}</p>
+        <NowShipping index={nowIndex} />
+        <div className="hero-actions">
+          <a className="btn btn-primary" href="#work" data-magnetic="" tabIndex={alt ? -1 : undefined}>
+            See the work
+            <ArrowUpRight size={15} strokeWidth={2.4} aria-hidden="true" />
+          </a>
+          <a
+            className="btn btn-secondary"
+            href={`mailto:${EMAIL}`}
+            data-magnetic=""
+            tabIndex={alt ? -1 : undefined}
+          >
+            Email me
+          </a>
+        </div>
+      </div>
+
+      <div className="hero-stage">
+        <div className="hero-figure-wrap" data-depth="0.35">
+          <figure className="hero-figure" data-cursor={alt ? undefined : 'Look'}>
+            <div className="hero-photo-frame">
+              <img
+                className="hero-photo"
+                src="/lakshya.png"
+                alt={alt ? '' : NAME}
+                width={1024}
+                height={1536}
+              />
+              {alt && <AsciiPortrait />}
+            </div>
+            <figcaption>{HERO.caption}</figcaption>
+          </figure>
+        </div>
+        {HERO_TAGS.map((tag) => (
+          <a
+            key={tag.label}
+            className={`hero-tag hero-tag-${tag.slot}`}
+            href={tag.href}
+            data-depth={tag.depth}
+            tabIndex={alt ? -1 : undefined}
+          >
+            <span className="hero-tag-kind">{tag.kind}</span>
+            {tag.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HeroName() {
+  return HERO.name.map((part, i) => (
+    <Fragment key={part}>
+      {i > 0 && ' '}
+      <span className="hero-line">
+        <span>
+          <ProximityText text={part} radius={220} />
+        </span>
+      </span>
+    </Fragment>
+  ));
+}
+
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
+  const altRef = useRef<HTMLDivElement>(null);
+  const [nowIndex, setNowIndex] = useState(0);
+
   useHeroMotion(heroRef);
+  useHeroReveal(heroRef, altRef);
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNowIndex((i) => (i + 1) % HERO.now.length), 2600);
+    return () => window.clearInterval(id);
+  }, []);
 
   return (
     <header id="top" className="hero" ref={heroRef}>
@@ -109,56 +200,11 @@ export default function Hero() {
         <div className="hero-grid-lit" />
       </div>
 
-      <div className="hero-inner">
-        <div className="hero-copy" data-depth="0.12">
-          <p className="hero-kicker">{HERO.kicker}</p>
-          <h1 className="hero-title">
-            {HERO.name.map((part, i) => (
-              <Fragment key={part}>
-                {i > 0 && ' '}
-                <span className="hero-line">
-                  <span>
-                    <ProximityText text={part} radius={220} />
-                  </span>
-                </span>
-              </Fragment>
-            ))}
-          </h1>
-          <p className="hero-lede">{HERO.lede}</p>
-          <NowShipping />
-          <div className="hero-actions">
-            <a className="btn btn-primary" href="#work" data-magnetic="">
-              See the work
-              <ArrowUpRight size={15} strokeWidth={2.4} aria-hidden="true" />
-            </a>
-            <a className="btn btn-secondary" href={`mailto:${EMAIL}`} data-magnetic="">
-              Email me
-            </a>
-          </div>
-        </div>
+      <HeroContent nowIndex={nowIndex} />
 
-        <div className="hero-stage">
-          <div className="hero-figure-wrap" data-depth="0.35">
-            <figure className="hero-figure" data-cursor="Look">
-              <div className="hero-photo-frame">
-                <img className="hero-photo" src="/lakshya.png" alt={NAME} width={1024} height={1536} />
-                <PortraitReveal />
-              </div>
-              <figcaption>{HERO.caption}</figcaption>
-            </figure>
-          </div>
-          {HERO_TAGS.map((tag) => (
-            <a
-              key={tag.label}
-              className={`hero-tag hero-tag-${tag.slot}`}
-              href={tag.href}
-              data-depth={tag.depth}
-            >
-              <span className="hero-tag-kind">{tag.kind}</span>
-              {tag.label}
-            </a>
-          ))}
-        </div>
+      <div ref={altRef} className="hero-alt" aria-hidden="true" inert>
+        <div className="hero-grid" data-depth="-0.25" />
+        <HeroContent alt nowIndex={nowIndex} />
       </div>
 
       <a className="hero-scroll" href="#work" aria-label="Scroll to work">

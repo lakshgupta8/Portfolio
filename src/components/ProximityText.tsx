@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef } from 'react';
-import { clamp, hasFinePointer, onFrame, pointer, prefersReducedMotion, smoothing } from '../lib/motion';
+import { clamp, hasFinePointer, onFrame, pointer, smoothing } from '../lib/motion';
 
 interface Props {
   text: string;
@@ -18,7 +18,7 @@ export default function ProximityText({ text, radius = 180, className }: Props) 
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!root || prefersReducedMotion() || !hasFinePointer()) return;
+    if (!root || !hasFinePointer()) return;
 
     const letters = Array.from(root.querySelectorAll<HTMLSpanElement>('.px-letter'));
     const strength = letters.map(() => 0);

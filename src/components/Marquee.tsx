@@ -23,7 +23,8 @@ export default function Marquee() {
 
   useEffect(() => {
     const track = trackRef.current;
-    if (!track || prefersReducedMotion()) return;
+    if (!track) return;
+    const base = prefersReducedMotion() ? 0 : BASE_SPEED;
 
     track.classList.add('is-driven');
     let offset = 0;
@@ -33,7 +34,7 @@ export default function Marquee() {
       const velocity = scroll.velocity;
       if (Math.abs(velocity) > 0.5) direction = velocity > 0 ? -1 : 1;
       const boost = Math.min(Math.abs(velocity) * 0.04, 1.6);
-      offset += direction * (BASE_SPEED + boost) * dt;
+      offset += direction * (base + boost) * dt;
       const half = track.scrollWidth / 2;
       if (half > 0) offset = ((offset % half) - half) % half;
       const skew = clamp(-velocity * 0.12, -8, 8);

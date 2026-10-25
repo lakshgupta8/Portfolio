@@ -592,12 +592,52 @@ figure {
   filter: grayscale(1) contrast(1.08);
 }
 
-.hero-reveal {
+/* The alternate layer: the same hero, as a dark negative, clipped to the
+   liquid outline the cursor leaves behind (see useHeroReveal). Swapping the
+   colour tokens re-skins everything inside it. */
+.hero-alt {
+  --color-bg: #201e1d;
+  --color-surface: #2d2b2b;
+  --color-text: #f3f2f2;
+  --color-accent: #f3f2f2;
+  --color-on-accent: #201e1d;
+  --color-divider: color-mix(in srgb, #f3f2f2 40%, transparent);
+  --color-neutral-100: #2d2b2b;
+  --color-neutral-200: #444141;
+  --color-neutral-300: #605d5d;
+  --color-neutral-400: #7d7979;
+  --color-neutral-500: #9b9797;
+  --color-neutral-600: #bab6b6;
+  --color-neutral-700: #d7d3d3;
+  --color-neutral-800: #eae7e7;
+  --color-neutral-900: #f8f4f4;
+  --rule: 2px solid var(--color-divider);
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  background: var(--color-bg);
+  color: var(--color-text);
+  pointer-events: none;
+  visibility: hidden;
+  clip-path: inset(50% 50% 50% 50%);
+}
+
+.hero-alt .hero-title .px-letter {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--color-text);
+}
+
+.hero-alt .hero-photo {
+  visibility: hidden;
+}
+
+.hero-ascii {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
 }
 
 .hero-figure figcaption {
@@ -997,25 +1037,45 @@ html.has-cursor * {
   color: var(--color-on-accent);
 }
 
-.project::after,
-.featured::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(
-    320px circle at var(--spot-x, 50%) var(--spot-y, 50%),
-    color-mix(in srgb, var(--color-on-accent) 14%, transparent),
-    transparent 70%
-  );
-  opacity: 0;
-  transition: opacity 0.3s;
-  pointer-events: none;
+/* With a mouse, one panel glides between cards instead (see Work.tsx). */
+.projects-grid {
+  position: relative;
+  overflow: clip;
 }
 
-.project:hover::after,
-.featured:hover::after {
-  opacity: 1;
+.work-glide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      340px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+      color-mix(in srgb, var(--color-on-accent) 16%, transparent),
+      transparent 70%
+    ),
+    var(--color-accent);
+  will-change: transform, width, height;
+}
+
+.projects-grid.is-gliding .cell {
+  background: transparent;
+  transition: color 0.35s;
+}
+
+.projects-grid.is-gliding .project:hover,
+.projects-grid.is-gliding .featured:hover {
+  background: transparent;
+}
+
+.projects-grid.is-gliding {
+  background: var(--color-bg);
+}
+
+.projects-grid .cell {
+  z-index: 1;
 }
 
 .project-meta {

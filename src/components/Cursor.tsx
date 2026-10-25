@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { hasFinePointer, onFrame, pointer, prefersReducedMotion, smoothing } from '../lib/motion';
+import { hasFinePointer, onFrame, pointer, smoothing } from '../lib/motion';
 
 const MAGNET_RANGE = 70;
 const MAGNET_PULL = 0.35;
@@ -8,7 +8,7 @@ const MAGNET_PULL = 0.35;
  * A dot that tracks the mouse exactly and a ring that trails it. The ring grows
  * over anything clickable and shows a label for `[data-cursor]` targets.
  * Also drives the magnetic pull on `[data-magnetic]` buttons.
- * Mouse only, and off entirely for reduced-motion users.
+ * Mouse only.
  */
 export default function Cursor() {
   const dotRef = useRef<HTMLDivElement>(null);
@@ -19,7 +19,7 @@ export default function Cursor() {
     const dot = dotRef.current;
     const ring = ringRef.current;
     const label = labelRef.current;
-    if (!dot || !ring || !label || prefersReducedMotion() || !hasFinePointer()) return;
+    if (!dot || !ring || !label || !hasFinePointer()) return;
 
     document.documentElement.classList.add('has-cursor');
 
