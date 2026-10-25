@@ -16,7 +16,7 @@ const BLOBS = [
 
 /**
  * A soft ink glow that follows the cursor through the hero with a little
- * randomness in how it flows, and lights up a sharper grid underneath it.
+ * randomness in how it flows.
  * When the mouse is still (or on touch) the glow wanders on its own, unless
  * the visitor prefers reduced motion.
  */
@@ -105,8 +105,6 @@ export default function HeroField() {
         ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
       });
 
-      hero.style.setProperty('--glow-x', `${trail[0].x.toFixed(1)}px`);
-      hero.style.setProperty('--glow-y', `${trail[0].y.toFixed(1)}px`);
     });
 
     return () => {

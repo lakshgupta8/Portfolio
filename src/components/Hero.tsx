@@ -3,6 +3,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { EMAIL, HERO, HERO_TAGS, NAME } from '../data/portfolio';
 import { clamp, hasFinePointer, onFrame, pointer, prefersReducedMotion, smoothing } from '../lib/motion';
 import AsciiPortrait from './AsciiPortrait';
+import HeroContours from './HeroContours';
 import HeroField from './HeroField';
 import ProximityText from './ProximityText';
 import { useHeroReveal } from './useHeroReveal';
@@ -196,14 +197,12 @@ export default function Hero() {
   return (
     <header id="top" className="hero" ref={heroRef}>
       <HeroField />
-      <div className="hero-grid" data-depth="-0.25" aria-hidden="true">
-        <div className="hero-grid-lit" />
-      </div>
+      <HeroContours />
 
       <HeroContent nowIndex={nowIndex} />
 
       <div ref={altRef} className="hero-alt" aria-hidden="true" inert>
-        <div className="hero-grid" data-depth="-0.25" />
+        <canvas className="hero-contours hero-contours-mirror" />
         <HeroContent alt nowIndex={nowIndex} />
       </div>
 

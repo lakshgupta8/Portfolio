@@ -3,10 +3,10 @@ import { contourPath } from '../lib/contours';
 import { hasFinePointer, onFrame, pointer, prefersReducedMotion } from '../lib/motion';
 
 const STEP = 14; // grid spacing in px for the reveal outline
-const LIFE_MS = 900; // how long a trail blob takes to melt away
+const LIFE_MS = 650; // how long a trail blob takes to melt away
 const MAX_BLOBS = 90;
-const SPACING = 16; // px between blobs laid along the cursor path
-const HOVER_RADIUS = 54; // the blob that sits under a resting cursor
+const SPACING = 12; // px between blobs laid along the cursor path
+const HOVER_RADIUS = 24; // the blob that sits under a resting cursor
 
 interface Blob {
   x: number;
@@ -84,7 +84,7 @@ export function useHeroReveal(
       const dist = Math.hypot(dx, dy);
       if (dist < SPACING) return;
       const speed = dist / Math.max(time - lastTime, 1);
-      const r = 46 + Math.min(speed * 26, 64);
+      const r = 16 + Math.min(speed * 8, 14);
       const steps = Math.ceil(dist / SPACING);
       for (let i = 1; i <= steps; i++) {
         blobs.push({ x: last.x + (dx * i) / steps, y: last.y + (dy * i) / steps, r, life: 1 });
