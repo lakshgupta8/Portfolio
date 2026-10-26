@@ -1091,7 +1091,8 @@ html.has-cursor * {
 }
 
 .project:hover,
-.featured:hover {
+.featured:hover,
+.cell.is-cued {
   background: var(--color-accent);
   color: var(--color-on-accent);
 }
@@ -1114,7 +1115,8 @@ html.has-cursor * {
 }
 
 .project:hover::after,
-.featured:hover::after {
+.featured:hover::after,
+.cell.is-cued::after {
   opacity: 1;
 }
 
@@ -1188,7 +1190,8 @@ html.has-cursor * {
   transition: border-color 0.2s;
 }
 
-.project-links a:hover {
+.project-links a:hover,
+.project-links a.is-cued {
   border-bottom-color: currentColor;
 }
 

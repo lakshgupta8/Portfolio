@@ -2,12 +2,23 @@ import { Fragment, useEffect, useRef, useSyncExternalStore } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { EMAIL, HERO, HERO_TAGS, NAME } from '../data/portfolio';
 import { clamp, hasFinePointer, onFrameWhileVisible, pointer, pointerActive, prefersReducedMotion, smoothing } from '../lib/motion';
+import { showProject } from '../lib/showProject';
 import AsciiPortrait from './AsciiPortrait';
 import HeroField from './HeroField';
 import ProximityText from './ProximityText';
 import { useHeroReveal } from './useHeroReveal';
 
 const LAYER_TRAVEL = 34;
+
+// The project tags centre their card and point at its source instead of
+// letting the browser drop the card's top under the nav.
+function jumpToProject(event: React.MouseEvent, href: string) {
+  const card = document.querySelector<HTMLElement>(href);
+  if (!card) return;
+  event.preventDefault();
+  history.pushState(null, '', href);
+  showProject(card);
+}
 
 /**
  * Moves every `[data-depth]` element in the hero with the cursor (both layers,
@@ -190,6 +201,7 @@ function HeroContent({ alt = false }: { alt?: boolean }) {
             href={tag.href}
             data-depth={tag.depth}
             tabIndex={alt ? -1 : undefined}
+            onClick={alt ? undefined : (event) => jumpToProject(event, tag.href)}
           >
             <span className="hero-tag-kind">{tag.kind}</span>
             {tag.label}
