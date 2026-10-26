@@ -1,11 +1,10 @@
-import { guideCursor } from './motion';
-
 const GAP = 16; // px kept below the nav when a card is too tall to center
+const CUE_MS = 5000; // how long the card keeps its hover look
 
 /**
  * Scrolls a project card to the middle of the screen (below the sticky nav),
- * swipes a phone carousel to it, then hands focus to its Source link and leads
- * the custom cursor there.
+ * swipes a phone carousel to it, then hands focus to its Source link and
+ * shows the card as if it were hovered.
  */
 export function showProject(card: HTMLElement) {
   // A card that hasn't revealed yet is still shifted down by its entrance
@@ -29,15 +28,26 @@ export function showProject(card: HTMLElement) {
   const source = card.querySelector<HTMLElement>('.project-links a:last-child');
   if (!source) return;
   source.focus({ preventScroll: true });
+  cue(card, source);
+}
+
+let clearCue = () => {};
+
+// Gives the card its hover look, as if the pointer rested on its Source link,
+// for a few seconds. The link keeps focus, so Enter opens it.
+function cue(card: HTMLElement, source: HTMLElement) {
+  clearCue();
+  const cardRect = card.getBoundingClientRect();
+  const linkRect = source.getBoundingClientRect();
+  card.style.setProperty('--spot-x', `${linkRect.left + linkRect.width / 2 - cardRect.left}px`);
+  card.style.setProperty('--spot-y', `${linkRect.top + linkRect.height / 2 - cardRect.top}px`);
   card.classList.add('is-cued');
   source.classList.add('is-cued');
-  source.addEventListener(
-    'blur',
-    () => {
-      card.classList.remove('is-cued');
-      source.classList.remove('is-cued');
-    },
-    { once: true },
-  );
-  guideCursor(source);
+  const timer = window.setTimeout(() => clearCue(), CUE_MS);
+  clearCue = () => {
+    window.clearTimeout(timer);
+    card.classList.remove('is-cued');
+    source.classList.remove('is-cued');
+    clearCue = () => {};
+  };
 }

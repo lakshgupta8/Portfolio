@@ -107,20 +107,6 @@ if (typeof window !== 'undefined') {
   });
 }
 
-/**
- * Where the custom cursor is being led, if anywhere. A page can't move the
- * real mouse, but it hides it behind the custom cursor, so gliding that onto
- * an element reads as the cursor moving there. It lets go when the mouse moves.
- */
-export const guide = { target: null as HTMLElement | null, fromX: 0, fromY: 0 };
-
-export function guideCursor(target: HTMLElement) {
-  guide.target = target;
-  guide.fromX = pointer.x;
-  guide.fromY = pointer.y;
-  window.dispatchEvent(new Event('cursorguide'));
-}
-
 /** Current scroll position, kept up to date by a passive scroll listener. */
 export const scroll = { y: 0 };
 
